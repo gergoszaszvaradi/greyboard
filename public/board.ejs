@@ -1,0 +1,111 @@
+<html>
+    <head>
+        <title>Greyboard | <%= board.name %></title>
+
+        <link rel="stylesheet" href="/css/util.css">
+        <link rel="stylesheet" href="/css/app.css">
+        <link rel="stylesheet" href="//cdn.materialdesignicons.com/5.2.45/css/materialdesignicons.min.css">
+
+        <script type="module" src="/lib/app.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    </head>
+    <body>
+        <div class="app">
+            <canvas id="canvas"></canvas>
+            <div class="ui">
+                <div id="boardactions" class="toolbar">
+                    <div class="toolbar-text">
+                        <input id="board-name" type="text" value="New board">
+                        <span id="board-static-name" class="u-noselect">New board</span>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="button-list">
+                        <button action="save"><i class="mdi mdi-content-save"></i></button>
+                        <button action="clear"><i class="mdi mdi-delete"></i></button>
+                        <button action="undo"><i class="mdi mdi-undo"></i></button>
+                        <button action="redo"><i class="mdi mdi-redo"></i></button>
+                    </div>
+                </div>
+                <div id="toolbox" class="toolbar vertical">
+                    <div id="grab" class="u-noselect"></div>
+                    <div class="button-list">
+                        <button action="tool-select"><i class="mdi mdi-select"></i></button>
+                        <div class="popup">
+                            <button action="tool-pencil" class="active"><i class="mdi mdi-pencil"></i></button>
+                            <div class="popup-content">
+                                <div class="horizontal-layout">
+                                    <button action="tool-marker"><i class="mdi mdi-marker"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button action="tool-eraser"><i class="mdi mdi-eraser"></i></button>
+                        <button action="tool-text"><i class="mdi mdi-format-title"></i></button>
+                        <div class="popup">
+                            <button action="popup-shapes"><i class="mdi mdi-shape"></i></button>
+                            <div class="popup-content">
+                                <div class="horizontal-layout">
+                                    <button action="tool-rectangle"><i class="mdi mdi-rectangle-outline"></i></button>
+                                    <button action="tool-fillrectangle"><i class="mdi mdi-rectangle"></i></button>
+                                    <button action="tool-ellipse"><i class="mdi mdi-ellipse-outline"></i></button>
+                                    <button action="tool-fillellipse"><i class="mdi mdi-ellipse"></i></button>
+                                    <button action="tool-line"><i class="mdi mdi-vector-line"></i></button>
+                                    <button action="tool-arrow"><i class="mdi mdi-arrow-top-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popup">
+                            <button action="popup-colors"><i class="mdi mdi-palette"></i></button>
+                            <div class="popup-content">
+                                <div class="horizontal-layout">
+                                    <button action="set-color" color="#FAFAFA" style="color: #FAFAFA !important" class="active"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#757575" style="color: #757575 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#FFEB3B" style="color: #FFEB3B !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#FF9800" style="color: #FF9800 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#F44336" style="color: #F44336 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#9C27B0" style="color: #9C27B0 !important"><div class="colorcircle"></div></button>
+                                </div>
+                                <div class="horizontal-layout">
+                                    <button action="set-color" color="#E0E0E0" style="color: #E0E0E0 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#212121" style="color: #212121 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#4CAF50" style="color: #4CAF50 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#009688" style="color: #009688 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#2196F3" style="color: #2196F3 !important"><div class="colorcircle"></div></button>
+                                    <button action="set-color" color="#3F51B5" style="color: #3F51B5 !important"><div class="colorcircle"></div></button>
+                                </div>
+                                <div class="horizontal-layout">
+                                    <div class="range">
+                                        <span class="u-noselect">Stroke size</span>
+                                        <input id="stroke-size" type="range" min="1" max="20" step="1" value="2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="viewsettings">
+                            <button action="zoomin"><i class="mdi mdi-plus"></i></button>
+                            <span id="zoomlevel" class="u-noselect">100%</span>
+                            <button action="zoomout"><i class="mdi mdi-minus"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div id="settings-button" class="toolbar">
+                    <button action="settings"><i class="mdi mdi-cog"></i></button>
+                </div>
+
+                <div class="panels">
+                    <div id="settings-panel" class="panel">
+                        <button class="panel-close"><i class="mdi mdi-close"></i></button>
+                        <h1>Settings</h1>
+                        <div class="panel-content">
+                            <div class="field">
+                                <label for="settings-username" class="u-noselect">Username</label>
+                                <input id="settings-username" type="text" name="settings-username" placeholder="Anonymous user">
+                            </div>
+                        </div>
+                        <button id="settings-save" class="button icon-button"><i class="mdi mdi-check"></i>Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

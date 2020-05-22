@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+tmp
+
+.env
+.vscode
+*.env
+*.dev
+.DS_Store
+
+Dockerfile
+docker-compose.yml

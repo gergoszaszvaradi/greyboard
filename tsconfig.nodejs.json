@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "strict": true,
+        "baseUrl": "./",
+        "sourceMap": false,
+        "removeComments": true,
+        "target": "es6",
+        "moduleResolution": "node",
+        "esModuleInterop": true
+    },
+    "include": [
+        "*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
