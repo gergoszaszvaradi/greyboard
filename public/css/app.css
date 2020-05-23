@@ -300,7 +300,7 @@ body{
     background-color: transparent;
 
     -webkit-appearance: none;
-    cursor: e-resize;
+    cursor: ew-resize;
 }
 .range input:focus{
     outline: none;

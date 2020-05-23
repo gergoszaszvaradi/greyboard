@@ -81,7 +81,7 @@ export class Select extends Tool {
             // if(app.keyboard.shift){
             //     // this.scaleAspect = this.bb.w / this.bb.h;
             // }
-            app.setCursor("nw-resize");
+            app.setCursor("nwse-resize");
         }else if(Util.isPointInRect(mp.x, mp.y, this.bb.x, this.bb.y, this.bb.w, this.bb.h)){
             this.mode = "move";
             this.moveStart = new Util.Point(this.bb.x, this.bb.y);
@@ -250,7 +250,7 @@ export class Select extends Tool {
 
         if(this.mode == "scale" && app.mouse.pressed){
             app.graphics.font("Arial", 14 / viewport.scale, "left", "top");
-            app.graphics.text(this.bb.x+this.bb.w + 10, this.bb.y+this.bb.h + 10, `${Math.floor(this.bb.w)} × ${Math.floor(this.bb.h)} px`);
+            app.graphics.text(this.bb.x+this.bb.w + 10 / viewport.scale, this.bb.y+this.bb.h + 10 / viewport.scale, `${Math.floor(this.bb.w)} × ${Math.floor(this.bb.h)} px`);
         }
     }
 }

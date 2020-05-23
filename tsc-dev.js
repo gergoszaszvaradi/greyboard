@@ -11,7 +11,8 @@ let building = false;
 let runProcess = null;
 
 function kill(pid){
-    spawn("taskkill", ["/pid", pid, '/f', '/t']);
+    // spawn("taskkill", ["/pid", pid, '/f', '/t']);
+    spawn("kill", [pid]);
 }
 
 function buildAndRun(cmd, restart) {

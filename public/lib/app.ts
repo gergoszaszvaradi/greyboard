@@ -49,21 +49,21 @@ app.onupdate.add((ts : number) => {
     toolbox.selected.onDraw();
 
     app.graphics.fill("#fc8210");
-    app.graphics.font("Arial", 14, "left", "middle");
+    app.graphics.font("Arial", 14 / viewport.scale, "left", "middle");
 
     let percent = ((new Date()).getTime() - socket.lastHeathBeatTime)/200;
     for(let cid in socket.clientCoords){
         if(cid == socket.cid) continue;
         socket.clientCoords[cid].interpolate(percent);
-        app.graphics.img(socket.clientCoords[cid].x, socket.clientCoords[cid].y, 16, 16, "/images/cursor.png");
+        app.graphics.img(socket.clientCoords[cid].x, socket.clientCoords[cid].y, 16 / viewport.scale, 16 / viewport.scale, "/images/cursor.png");
         if(socket.clients[cid])
-            app.graphics.text(socket.clientCoords[cid].x + 24, socket.clientCoords[cid].y + 8, socket.clients[cid].name);
+            app.graphics.text(socket.clientCoords[cid].x + 24 / viewport.scale, socket.clientCoords[cid].y + 8 / viewport.scale, socket.clients[cid].name);
     }
 });
 
 app.onpaste.add((data) => {
     board.addFromClipboard(data);
-});
+}); 
 
 app.ui.onaction.add((action : string, e : Element) => {
     switch(action){
@@ -114,9 +114,13 @@ app.ui.onaction.add((action : string, e : Element) => {
             viewport.zoom(app.width / 2, app.height / 2, 0.5);
             break;
         case "set-color":
-            let color = e.getAttribute("color");
+            let color = $(e).attr("color");
             if(color)
                 toolbox.selectColor(color);
+            break;
+        case "settings":
+            app.ui.hideAllPanels();
+            app.ui.showPanel("#settings-panel");
             break;
     }
 });

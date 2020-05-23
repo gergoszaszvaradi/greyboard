@@ -4,8 +4,8 @@ export class UI {
     constructor() {
         this.onaction = new Delegate();
         this.dragInfo = { e: null, dx: 0, dy: 0 };
-        document.addEventListener("DOMContentLoaded", () => {
-            document.addEventListener("mousemove", (e) => {
+        $(document).ready(() => {
+            $(document).on("mousemove", (e) => {
                 if (this.dragInfo && this.dragInfo.e) {
                     let x = e.clientX - this.dragInfo.dx;
                     let y = e.clientY - this.dragInfo.dy;
@@ -15,78 +15,75 @@ export class UI {
                         this.dragInfo.e.style.top = `${y}px`;
                 }
             });
-            document.addEventListener("mouseup", (e) => {
+            $(document).on("mouseup", (e) => {
                 if (this.dragInfo) {
                     this.dragInfo = { e: null, dx: 0, dy: 0 };
                     app.setCursor("default");
                 }
             });
-            document.querySelectorAll("*[action]").forEach((e) => {
-                e.addEventListener("click", () => {
-                    let action = e.getAttribute("action");
-                    if (action)
-                        this.onaction.invoke(action, e);
-                });
+            $("*[action]").on("click", (e) => {
+                let action = $(e.currentTarget).attr("action");
+                if (action)
+                    this.onaction.invoke(action, e.currentTarget);
             });
-            document.querySelectorAll(".panel .button").forEach((e) => {
-                e.addEventListener("mousedown", () => {
-                    e.classList.add("ripple");
-                    setTimeout(() => { e.classList.remove("ripple"); }, 500);
-                });
+            $(".panel .button").on("mousedown", (e) => {
+                $(e.currentTarget).addClass("ripple");
+                setTimeout(() => { $(e.currentTarget).removeClass("ripple"); }, 500);
             });
-            document.querySelectorAll(".toolbar #grab").forEach((e) => {
-                e.addEventListener("mousedown", (event) => {
-                    if (e.parentElement) {
-                        let style = window.getComputedStyle(e.parentElement);
-                        this.dragInfo = {
-                            e: e.parentElement,
-                            dx: event.clientX - parseInt(style.left),
-                            dy: event.clientY - parseInt(style.top)
-                        };
-                        app.setCursor("move");
-                    }
-                });
+            $(".toolbar #grab").on("mousedown", (e) => {
+                let parent = $(e.currentTarget).parent();
+                if (parent) {
+                    this.dragInfo = {
+                        e: parent[0],
+                        dx: e.clientX - parseInt(parent.css("left")),
+                        dy: e.clientY - parseInt(parent.css("top"))
+                    };
+                    app.setCursor("move");
+                }
             });
-            document.querySelectorAll("#board-static-name").forEach((e) => {
-                e.addEventListener("click", () => {
-                    e.style.display = "none";
-                    let input = document.querySelector("#board-name");
-                    input.style.display = "block";
-                    input.focus();
-                    input.select();
-                });
+            $("#board-static-name").on("click", (e) => {
+                $(e.currentTarget).hide();
+                let input = $("#board-name");
+                input.show();
+                input.focus();
+                input.select();
             });
-            document.querySelector("#board-name").addEventListener("blur", (e) => {
-                e.currentTarget.style.display = "none";
-                let text = document.querySelector("#board-static-name");
-                text.innerHTML = e.currentTarget.value;
-                text.style.display = "block";
-                board.name = text.innerHTML;
+            $("#board-name").on("blur", (e) => {
+                $(e.currentTarget).hide();
+                let text = $("#board-static-name");
+                text.text($(e.currentTarget).val());
+                text.show();
+                board.name = text.text();
+                document.title = `Greyboard | ${board.name}`;
                 socket.send("board:name", board.name);
             });
-            document.querySelector("#board-name").addEventListener("keydown", (e) => {
+            $("#board-name").on("keydown", (e) => {
                 if (e.keyCode != 13)
                     return;
-                e.currentTarget.style.display = "none";
-                let text = document.querySelector("#board-static-name");
-                text.innerHTML = e.currentTarget.value;
-                text.style.display = "block";
-                board.name = text.innerHTML;
+                $(e.currentTarget).hide();
+                let text = $("#board-static-name");
+                text.text($(e.currentTarget).val());
+                text.show();
+                board.name = text.text();
+                document.title = `Greyboard | ${board.name}`;
                 socket.send("board:name", board.name);
             });
-            document.querySelector("#stroke-size").addEventListener("change", (e) => {
-                toolbox.weight = e.currentTarget.valueAsNumber;
+            $("#stroke-size").on("change", (e) => {
+                toolbox.weight = $(e.currentTarget).val();
             });
         });
     }
     setText(selector, text) {
-        let e = document.querySelector(selector);
-        if (e == null)
-            return;
-        e.innerHTML = text;
+        $(selector).text(text);
     }
     setActive(all, e) {
-        document.querySelectorAll(all).forEach((t) => t.classList.remove("active"));
-        document.querySelectorAll(e).forEach((t) => t.classList.add("active"));
+        $(all).removeClass("active");
+        $(e).addClass("active");
+    }
+    showPanel(panel) {
+        $(panel).fadeIn();
+    }
+    hideAllPanels() {
+        $(".panel").fadeOut();
     }
 }
