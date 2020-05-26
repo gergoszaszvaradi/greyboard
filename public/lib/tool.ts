@@ -1,6 +1,6 @@
 import { app, viewport, board, socket, toolbox } from "./app.js"
 import * as Util from "./util.js"
-import { BoardPath, BoardRectangle, BoardEllipse, BoardArrow } from "./board.js";
+import { BoardPath, BoardRectangle, BoardEllipse, BoardArrow, BoardItem } from "./board.js";
 import { ActionStack } from "./action.js";
 
 export class Toolbox {
@@ -146,15 +146,7 @@ export class Select extends Tool {
         }
 
         if(this.mode == "select"){
-            for(let i of this.selection){
-                let item = board.items[i];
-                if(item.rect.x < this.bb.x) this.bb.x = item.rect.x;
-                if(item.rect.x + item.rect.w > this.bb.w) this.bb.w = item.rect.x + item.rect.w;
-                if(item.rect.y < this.bb.y) this.bb.y = item.rect.y;
-                if(item.rect.y + item.rect.h > this.bb.h) this.bb.h = item.rect.y + item.rect.h;
-            }
-            this.bb.w -= this.bb.x;
-            this.bb.h -= this.bb.y;
+            this.calculateBoundingBox();
             this.rect = new Util.ERect();
         } else if(this.mode == "move"){
             ActionStack.add((data) => {
@@ -178,6 +170,18 @@ export class Select extends Tool {
             }, {ids: this.selection, dx: sx, dy: sy}, false);
             socket.send("board:scale", {ids: this.selection, dx: sx, dy: sy});
         }
+    }
+
+    calculateBoundingBox(){
+        for(let i of this.selection){
+            let item = board.items[i];
+            if(item.rect.x < this.bb.x) this.bb.x = item.rect.x;
+            if(item.rect.x + item.rect.w > this.bb.w) this.bb.w = item.rect.x + item.rect.w;
+            if(item.rect.y < this.bb.y) this.bb.y = item.rect.y;
+            if(item.rect.y + item.rect.h > this.bb.h) this.bb.h = item.rect.y + item.rect.h;
+        }
+        this.bb.w -= this.bb.x;
+        this.bb.h -= this.bb.y;
     }
 
     moveSelection(dx : number, dy : number){
@@ -221,6 +225,13 @@ export class Select extends Tool {
     clearSelection(){
         this.selection = [];
         this.bb = new Util.Rect(Infinity, Infinity, 0, 0);
+    }
+    copySelection(data : DataTransfer){
+        let objs : Array<object> = [];
+        for(let id of this.selection){
+            objs.push(board.items[id] as object);
+        }
+        navigator.clipboard.writeText(JSON.stringify(objs));
     }
 
     onDraw(){

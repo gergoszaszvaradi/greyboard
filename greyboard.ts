@@ -126,7 +126,7 @@ export class GreyBoard {
         }
         setTimeout(() => { this.hearthbeat(); }, 100);
     }
-
+    
     generateID() : string {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         let id = "";

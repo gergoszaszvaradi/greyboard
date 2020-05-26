@@ -61,6 +61,9 @@ app.onupdate.add((ts : number) => {
     }
 });
 
+app.oncopy.add((data) => {
+    toolbox.select.copySelection(data);
+});
 app.onpaste.add((data) => {
     board.addFromClipboard(data);
 }); 

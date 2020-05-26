@@ -43,7 +43,6 @@ export class Application {
     onmousemove = new Delegate();
     onmouseup = new Delegate();
     onmousewheel = new Delegate();
-    onmouseleave = new Delegate();
 
     oncopy = new Delegate();
     onpaste = new Delegate();
@@ -77,8 +76,8 @@ export class Application {
                 
             this.keyboard = new Keyboard();
         });
-        window.addEventListener("copy", () => {
-            this.oncopy.invoke();
+        window.addEventListener("copy", (e) => {
+            this.oncopy.invoke((e as ClipboardEvent).clipboardData);
         });
         window.addEventListener("paste", (e) => {
             this.onpaste.invoke((e as ClipboardEvent).clipboardData);
@@ -106,11 +105,6 @@ export class Application {
         this.graphics.canvas.addEventListener("wheel", (e) => {
             this.onmousewheel.invoke(e.deltaX, e.deltaY);
         });
-        // this.graphics.canvas.addEventListener("mouseleave", (e) => {
-        //     this.mouse.pressed = false;
-        //     this.mouse.button = -1;
-        //     this.onmouseleave.invoke();
-        // });
 
         this.lastUpdateTime = (new Date()).getTime();
         this.update();

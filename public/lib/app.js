@@ -46,6 +46,9 @@ app.onupdate.add((ts) => {
             app.graphics.text(socket.clientCoords[cid].x + 24 / viewport.scale, socket.clientCoords[cid].y + 8 / viewport.scale, socket.clients[cid].name);
     }
 });
+app.oncopy.add((data) => {
+    toolbox.select.copySelection(data);
+});
 app.onpaste.add((data) => {
     board.addFromClipboard(data);
 });

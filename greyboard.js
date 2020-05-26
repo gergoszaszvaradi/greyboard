@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GreyBoard = exports.BoardItemType = void 0;
 const socket_io_1 = __importDefault(require("socket.io"));
+const http_1 = __importDefault(require("http"));
 const fs_1 = __importDefault(require("fs"));
 ;
 var BoardItemType;
@@ -106,12 +107,29 @@ class GreyBoard {
             });
         });
         this.hearthbeat();
+        this.keepHostAlive();
     }
     hearthbeat() {
         for (let bid in this.loadedBoards) {
             this.io.to(bid).emit("client:state", this.loadedBoards[bid].clients);
         }
         setTimeout(() => { this.hearthbeat(); }, 100);
+    }
+    keepHostAlive() {
+        console.log("alive?");
+        setTimeout(() => {
+            if (this.io.sockets.clients.length > 0) {
+                http_1.default.get("http://greyboard.herokuapp.com/", (resp) => {
+                    resp.on("end", () => {
+                        console.log("Keeping host alive");
+                    });
+                });
+            }
+            else {
+                console.log("No connections on the server. Shutting down...");
+            }
+            this.keepHostAlive();
+        }, 10000);
     }
     generateID() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

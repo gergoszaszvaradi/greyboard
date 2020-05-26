@@ -34,7 +34,6 @@ export class Application {
         this.onmousemove = new Delegate();
         this.onmouseup = new Delegate();
         this.onmousewheel = new Delegate();
-        this.onmouseleave = new Delegate();
         this.oncopy = new Delegate();
         this.onpaste = new Delegate();
         this.onupdate = new Delegate();
@@ -58,8 +57,8 @@ export class Application {
                     shortcut.callback();
             this.keyboard = new Keyboard();
         });
-        window.addEventListener("copy", () => {
-            this.oncopy.invoke();
+        window.addEventListener("copy", (e) => {
+            this.oncopy.invoke(e.clipboardData);
         });
         window.addEventListener("paste", (e) => {
             this.onpaste.invoke(e.clipboardData);

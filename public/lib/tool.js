@@ -139,19 +139,7 @@ export class Select extends Tool {
             });
         }
         if (this.mode == "select") {
-            for (let i of this.selection) {
-                let item = board.items[i];
-                if (item.rect.x < this.bb.x)
-                    this.bb.x = item.rect.x;
-                if (item.rect.x + item.rect.w > this.bb.w)
-                    this.bb.w = item.rect.x + item.rect.w;
-                if (item.rect.y < this.bb.y)
-                    this.bb.y = item.rect.y;
-                if (item.rect.y + item.rect.h > this.bb.h)
-                    this.bb.h = item.rect.y + item.rect.h;
-            }
-            this.bb.w -= this.bb.x;
-            this.bb.h -= this.bb.y;
+            this.calculateBoundingBox();
             this.rect = new Util.ERect();
         }
         else if (this.mode == "move") {
@@ -176,6 +164,21 @@ export class Select extends Tool {
             }, { ids: this.selection, dx: sx, dy: sy }, false);
             socket.send("board:scale", { ids: this.selection, dx: sx, dy: sy });
         }
+    }
+    calculateBoundingBox() {
+        for (let i of this.selection) {
+            let item = board.items[i];
+            if (item.rect.x < this.bb.x)
+                this.bb.x = item.rect.x;
+            if (item.rect.x + item.rect.w > this.bb.w)
+                this.bb.w = item.rect.x + item.rect.w;
+            if (item.rect.y < this.bb.y)
+                this.bb.y = item.rect.y;
+            if (item.rect.y + item.rect.h > this.bb.h)
+                this.bb.h = item.rect.y + item.rect.h;
+        }
+        this.bb.w -= this.bb.x;
+        this.bb.h -= this.bb.y;
     }
     moveSelection(dx, dy) {
         board.move(this.selection, dx, dy);
@@ -214,6 +217,13 @@ export class Select extends Tool {
     clearSelection() {
         this.selection = [];
         this.bb = new Util.Rect(Infinity, Infinity, 0, 0);
+    }
+    copySelection(data) {
+        let objs = [];
+        for (let id of this.selection) {
+            objs.push(board.items[id]);
+        }
+        navigator.clipboard.writeText(JSON.stringify(objs));
     }
     onDraw() {
         if (this.rect.w * this.rect.h > 0) {

@@ -1,5 +1,5 @@
 import * as Util from "./util.js";
-import { viewport, app, socket } from "./app.js";
+import { viewport, app, socket, toolbox, board } from "./app.js";
 import { ActionStack } from "./action.js";
 import Delegate from "./delegate.js";
 export var BoardItemType;
@@ -22,6 +22,7 @@ export class Board {
             this.items[item.id] = item;
     }
     addFromObjects(objs) {
+        console.log(objs);
         let itemsToAdd = [];
         for (let item of objs) {
             if (item.type == BoardItemType.Path) {
@@ -66,6 +67,31 @@ export class Board {
             return;
         let item = data.items[0];
         if (item.type.startsWith("text")) {
+            let items = JSON.parse(data.getData("text"));
+            if (items) {
+                toolbox.selectTool(toolbox.select);
+                toolbox.select.clearSelection();
+                let ids = [];
+                for (let i of items) {
+                    i.id = Util.generateID();
+                    i.rect.x += 30;
+                    i.rect.y += 30;
+                    ids.push(i.id);
+                }
+                navigator.clipboard.writeText(JSON.stringify(items));
+                ActionStack.add((data) => {
+                    this.addFromObjects(data.items);
+                    toolbox.select.selection = data.ids;
+                    toolbox.select.calculateBoundingBox();
+                    socket.send("board:add", data.items);
+                }, (data) => {
+                    this.remove(data.ids);
+                    socket.send("board:remove", data.ids);
+                }, { items, ids });
+                board.addFromObjects(items);
+                toolbox.select.selection = ids;
+                toolbox.select.calculateBoundingBox();
+            }
         }
         else if (item.type.startsWith("image")) {
             let blob = item.getAsFile();
