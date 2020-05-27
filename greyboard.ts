@@ -2,6 +2,7 @@ import socketio from "socket.io"
 import http from "http"
 import express from "express";
 import fs from "fs";
+import fetch from "node-fetch"
 
 export interface Board{
     id : string,
@@ -118,6 +119,7 @@ export class GreyBoard {
             });
         });
         this.hearthbeat();
+        this.keepHostAlive();
     }
 
     hearthbeat(){
@@ -125,6 +127,18 @@ export class GreyBoard {
             this.io.to(bid).emit("client:state", this.loadedBoards[bid].clients);
         }
         setTimeout(() => { this.hearthbeat(); }, 100);
+    }
+
+    keepHostAlive(){
+        setTimeout(() => {
+            if(Object.keys(this.io.sockets.connected).length > 0){
+                fetch("https://greyboard.herokuapp.com/", {method: "get"}).then((res : any) => console.log("Keeping alive!"));
+            }else{
+                console.log("No connections on the server, shutting down...");
+            }
+
+            this.keepHostAlive();
+        }, 1200000);
     }
     
     generateID() : string {

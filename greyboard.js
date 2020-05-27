@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GreyBoard = exports.BoardItemType = void 0;
 const socket_io_1 = __importDefault(require("socket.io"));
-const http_1 = __importDefault(require("http"));
 const fs_1 = __importDefault(require("fs"));
+const node_fetch_1 = __importDefault(require("node-fetch"));
 ;
 var BoardItemType;
 (function (BoardItemType) {
@@ -116,19 +116,14 @@ class GreyBoard {
         setTimeout(() => { this.hearthbeat(); }, 100);
     }
     keepHostAlive() {
-        console.log("alive?");
         setTimeout(() => {
-            if (this.io.sockets.clients.length > 0) {
-                http_1.default.get("http://greyboard.herokuapp.com/", (resp) => {
-                    resp.on("end", () => {
-                        console.log("Keeping host alive");
-                    });
-                });
+            console.log(Object.keys(this.io.sockets.connected).length);
+            if (this.io.sockets.sockets.length) {
+                node_fetch_1.default("https://greyboard.herokuapp.com/", { method: "get" }).then((res) => console.log("Keeping alive!"));
             }
             else {
-                console.log("No connections on the server. Shutting down...");
+                console.log("No connections on the server, shutting down...");
             }
-            this.keepHostAlive();
         }, 10000);
     }
     generateID() {
