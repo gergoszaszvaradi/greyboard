@@ -133,8 +133,14 @@ app.registerShortcut(90, true, true, false, () => { ActionStack.redo(); });
 app.registerShortcut(46, false, false, false, () => { toolbox.select.deleteSelection(); });
 
 app.registerShortcut(83, false, false, false, () => { toolbox.selectTool(toolbox.select); });
-app.registerShortcut(80, false, false, false, () => { toolbox.selectTool(toolbox.pencil); });
+app.registerShortcut(66, false, false, false, () => { toolbox.selectTool(toolbox.pencil); });
 app.registerShortcut(69, false, false, false, () => { toolbox.selectTool(toolbox.eraser); });
+app.registerShortcut(76, false, false, false, () => { toolbox.selectTool(toolbox.line); });
+app.registerShortcut(82, false, false, false, () => { toolbox.selectTool(toolbox.rectange); });
+app.registerShortcut(82, false, true, false, () => { toolbox.selectTool(toolbox.fillrectangle); });
+app.registerShortcut(67, false, false, false, () => { toolbox.selectTool(toolbox.ellipse); });
+app.registerShortcut(67, false, true, false, () => { toolbox.selectTool(toolbox.fillellipse); });
+app.registerShortcut(65, false, false, false, () => { toolbox.selectTool(toolbox.arrow); });
 
 ActionStack.onundo.add(() => {
     toolbox.select.clearSelection();

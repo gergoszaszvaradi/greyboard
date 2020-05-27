@@ -117,14 +117,14 @@ class GreyBoard {
     }
     keepHostAlive() {
         setTimeout(() => {
-            console.log(Object.keys(this.io.sockets.connected).length);
-            if (this.io.sockets.sockets.length) {
+            if (Object.keys(this.io.sockets.connected).length > 0) {
                 node_fetch_1.default("https://greyboard.herokuapp.com/", { method: "get" }).then((res) => console.log("Keeping alive!"));
             }
             else {
                 console.log("No connections on the server, shutting down...");
             }
-        }, 10000);
+            this.keepHostAlive();
+        }, 1200000);
     }
     generateID() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
