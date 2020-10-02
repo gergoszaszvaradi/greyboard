@@ -48,8 +48,8 @@ app.get("/b/:id", (req, res) => {
 });
 app.get("/b/:id/save", (req, res) => {
     if (greyboard.boardExists(req.params.id)) {
-        res.setHeader('Content-disposition', `attachment; filename=board_${req.params.id}.json`);
-        res.setHeader('Content-Type', 'text/json');
+        res.setHeader('Content-disposition', `attachment; filename=board_${req.params.id}.gb`);
+        res.setHeader('Content-Type', 'text/plain');
         greyboard.writeToResponse(res, req.params.id);
     }
     else {

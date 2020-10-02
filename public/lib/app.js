@@ -4,6 +4,7 @@ import { Board } from "./board.js";
 import { Toolbox } from "./tool.js";
 import { Socket } from "./socket.js";
 import { ActionStack } from "./action.js";
+import Exporter from "./exporter.js";
 export let app = new Application();
 export let viewport = new Viewport();
 export let board = new Board();
@@ -57,6 +58,9 @@ app.ui.onaction.add((action, e) => {
         case "save":
             window.open(`/b/${socket.bid}/save`);
             break;
+        case "export":
+            Exporter.exportAsPNG();
+            break;
         case "clear":
             board.items = {};
             socket.send("board:clear", null);
@@ -104,10 +108,6 @@ app.ui.onaction.add((action, e) => {
             let color = $(e).attr("color");
             if (color)
                 toolbox.selectColor(color);
-            break;
-        case "settings":
-            app.ui.hideAllPanels();
-            app.ui.showPanel("#settings-panel");
             break;
     }
 });

@@ -38,7 +38,8 @@ export class Application {
         this.onpaste = new Delegate();
         this.onupdate = new Delegate();
         this.ui = new UI();
-        this.graphics = new Graphics();
+        let canvas = document.getElementById("canvas");
+        this.graphics = new Graphics(canvas);
         this.resize(window.innerWidth, window.innerHeight);
         window.addEventListener("resize", () => {
             this.resize(window.innerWidth, window.innerHeight);

@@ -6,8 +6,8 @@ export default class Graphics {
 
     private cachedImages : {[key : string] : CanvasImageSource} = {};
 
-    constructor(){
-        this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    constructor(canvas : HTMLCanvasElement){
+        this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
         this.ctx.textBaseline = "top";
     }
@@ -163,5 +163,10 @@ export default class Graphics {
     }
     text(x : number, y : number, text : string){
         this.ctx.fillText(text, x, y);
+    }
+
+
+    getImageData(){
+        return this.canvas.toDataURL("application/octet-stream");
     }
 }

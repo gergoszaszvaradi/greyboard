@@ -44,7 +44,6 @@ export class Board {
                 arrow.rect = item.rect;
                 itemsToAdd.push(arrow);
             }else if(item.type == BoardItemType.Image){
-                console.log(item.rect);
                 let img = new BoardImage(item.cid, item.rect.x, item.rect.y, item.src);
                 img.id = item.id;
                 img.onloaded.add(() => {
@@ -156,6 +155,25 @@ export class Board {
         for(let i in this.items)
             if(viewport.isRectInView(this.items[i].rect))
                 this.items[i].draw();
+    }
+
+    drawAll(){
+        for(let i in this.items)
+            this.items[i].draw();
+    }
+
+    getBoundingBox() : Util.Rect {
+        let rr = new Util.Rect(Infinity, Infinity, -Infinity, -Infinity);
+        for(let i in this.items){
+            let r = this.items[i].rect;
+            if(rr.x > r.x) rr.x = r.x;
+            if(rr.y > r.y) rr.y = r.y;
+            if(rr.w < r.x + r.w) rr.w = r.x + r.w;
+            if(rr.h < r.y + r.h) rr.h = r.y + r.h;
+        }
+        rr.w -= rr.x;
+        rr.h -= rr.y;
+        return rr;
     }
 }
 

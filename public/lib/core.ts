@@ -53,7 +53,8 @@ export class Application {
     ui = new UI();
 
     constructor(){
-        this.graphics = new Graphics();
+        let canvas = document.getElementById("canvas");
+        this.graphics = new Graphics(canvas as HTMLCanvasElement);
 
         this.resize(window.innerWidth, window.innerHeight);
 

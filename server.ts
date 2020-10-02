@@ -47,8 +47,8 @@ app.get("/b/:id", (req : express.Request, res : express.Response) => {
 });
 app.get("/b/:id/save", (req : express.Request, res : express.Response) => {
     if(greyboard.boardExists(req.params.id)){
-        res.setHeader('Content-disposition', `attachment; filename=board_${req.params.id}.json`);
-        res.setHeader('Content-Type', 'text/json');
+        res.setHeader('Content-disposition', `attachment; filename=board_${req.params.id}.gb`);
+        res.setHeader('Content-Type', 'text/plain');
         greyboard.writeToResponse(res, req.params.id);
     }else{
         res.send("Board does not exist");

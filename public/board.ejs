@@ -22,6 +22,7 @@
                     <div class="separator"></div>
                     <div class="button-list">
                         <button action="save"><i class="mdi mdi-content-save"></i></button>
+                        <button action="export"><i class="mdi mdi-export"></i></button>
                         <button action="clear"><i class="mdi mdi-delete"></i></button>
                         <button action="undo"><i class="mdi mdi-undo"></i></button>
                         <button action="redo"><i class="mdi mdi-redo"></i></button>
@@ -31,14 +32,7 @@
                     <div id="grab" class="u-noselect"></div>
                     <div class="button-list">
                         <button action="tool-select"><i class="mdi mdi-select"></i></button>
-                        <div class="popup">
-                            <button action="tool-pencil" class="active"><i class="mdi mdi-pencil"></i></button>
-                            <div class="popup-content">
-                                <div class="horizontal-layout">
-                                    <button action="tool-marker"><i class="mdi mdi-marker"></i></button>
-                                </div>
-                            </div>
-                        </div>
+                        <button action="tool-pencil" class="active"><i class="mdi mdi-pencil"></i></button>
                         <button action="tool-eraser"><i class="mdi mdi-eraser"></i></button>
                         <button action="tool-text"><i class="mdi mdi-format-title"></i></button>
                         <div class="popup">
@@ -91,20 +85,6 @@
                 </div>
                 <div id="settings-button" class="toolbar">
                     <button action="settings"><i class="mdi mdi-cog"></i></button>
-                </div>
-
-                <div class="panels">
-                    <div id="settings-panel" class="panel">
-                        <button class="panel-close"><i class="mdi mdi-close"></i></button>
-                        <h1>Settings</h1>
-                        <div class="panel-content">
-                            <div class="field">
-                                <label for="settings-username" class="u-noselect">Username</label>
-                                <input id="settings-username" type="text" name="settings-username" placeholder="Anonymous user">
-                            </div>
-                        </div>
-                        <button id="settings-save" class="button icon-button"><i class="mdi mdi-check"></i>Done</button>
-                    </div>
                 </div>
             </div>
         </div>
