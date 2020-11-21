@@ -49,7 +49,7 @@ export class GBBuffer {
         for(let c of str){
             this.offset = this.buffer.writeUInt8(c.charCodeAt(0), this.offset);
         }
-        this.buffer.writeUInt8(0, this.offset);
+        this.offset = this.buffer.writeUInt8(0, this.offset);
     }
     readString(){
         let str = "";

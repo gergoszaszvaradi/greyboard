@@ -22,7 +22,6 @@ export class Board {
             this.items[item.id] = item;
     }
     addFromObjects(objs) {
-        console.log(objs);
         let itemsToAdd = [];
         for (let item of objs) {
             if (item.type == BoardItemType.Path) {
@@ -330,6 +329,7 @@ export class BoardImage extends BoardItem {
         this.img = new Image();
         this.src = src;
         this.img.src = src;
+        console.log(src);
         this.img.onload = () => {
             this.rect.w = this.img.width;
             this.rect.h = this.img.height;

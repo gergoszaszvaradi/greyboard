@@ -22,7 +22,6 @@ export class Board {
     }
 
     addFromObjects(objs : Array<any>) {
-        console.log(objs);
         let itemsToAdd : Array<BoardItem> = [];
         for(let item of objs){
             if(item.type == BoardItemType.Path){
@@ -345,6 +344,7 @@ export class BoardImage extends BoardItem {
         this.img = new Image();
         this.src = src;
         this.img.src = src;
+        console.log(src);
         this.img.onload = () => {
             this.rect.w = this.img.width as number;
             this.rect.h = this.img.height as number;
