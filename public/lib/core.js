@@ -40,6 +40,7 @@ export class Application {
         this.ui = new UI();
         let canvas = document.getElementById("canvas");
         this.graphics = new Graphics(canvas);
+        createjs.Ticker.timingMode = createjs.Ticker.RAF;
         this.resize(window.innerWidth, window.innerHeight);
         window.addEventListener("resize", () => {
             this.resize(window.innerWidth, window.innerHeight);

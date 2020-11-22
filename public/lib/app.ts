@@ -125,6 +125,12 @@ app.ui.onaction.add((action : string, e : Element) => {
             if(color)
                 toolbox.selectColor(color);
             break;
+        case "pan-to-user":
+            let cid = e.getAttribute("data-user");
+            if(cid && cid != socket.cid){
+                viewport.panTo(socket.clientCoords[cid].x, socket.clientCoords[cid].y);
+            }
+            break;
         // case "settings":
         //     app.ui.hideAllPanels();
         //     app.ui.showPanel("#settings-panel");

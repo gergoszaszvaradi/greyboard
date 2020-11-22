@@ -31,10 +31,13 @@ export class UI {
                     app.setCursor("default");
                 }
             });
-            $("*[action]").on("click", (e) => {
-                let action = $(e.currentTarget).attr("action");
-                if(action)
-                    this.onaction.invoke(action, e.currentTarget);
+            $(document).on("click", (e) => {
+                if(e.target){
+                    let action = $(e.target).attr("action");
+                    if(action){
+                        this.onaction.invoke(action, e.target);
+                    }
+                }
             });
 
             $(".panel .button").on("mousedown", (e) => {

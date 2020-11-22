@@ -32,11 +32,22 @@ export class Socket {
                 bid: bid,
                 x: mp.x,
                 y: mp.y,
-                name: "Anonymous User"
+                name: window.localStorage.getItem("gb_name") || null
             });
             this.clientCoords[this.cid] = new ClientCoord(app.mouse.x, app.mouse.y);
             this.socket.on("room:state", (data) => {
                 this.clients = data.clients;
+                let users = document.querySelector("#users");
+                if (users) {
+                    let abr = data.clients[this.cid].name.replace(/[^A-Z]/g, "");
+                    users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${this.cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.clients[this.cid].name}</div></div>`;
+                    for (let cid in data.clients) {
+                        if (cid != this.cid) {
+                            abr = data.clients[cid].name.replace(/[^A-Z]/g, "");
+                            users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.clients[cid].name}</div></div>`;
+                        }
+                    }
+                }
                 board.addFromObjects(Object.values(data.items));
             });
             this.socket.on("client:state", (data) => {
@@ -52,8 +63,16 @@ export class Socket {
             this.socket.on("client:connect", (data) => {
                 this.clients[data.cid] = data;
                 this.clientCoords[data.cid] = new ClientCoord(this.clients[data.cid].x, this.clients[data.cid].y);
+                let abr = data.name.replace(/[^A-Z]/g, "");
+                let users = document.querySelector("#users");
+                if (users)
+                    users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${data.cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.name}</div></div>`;
             });
             this.socket.on("client:disconnect", (data) => {
+                var _a;
+                let users = document.querySelector("#users");
+                if (users)
+                    (_a = users.querySelector(`*[data-user="${data}"]`)) === null || _a === void 0 ? void 0 : _a.remove();
                 delete this.clients[data];
                 delete this.clientCoords[data];
             });
@@ -90,8 +109,7 @@ export class Socket {
             cid: this.cid,
             bid: this.bid,
             x: mp.x,
-            y: mp.y,
-            name: "Anonymous User"
+            y: mp.y
         });
         setTimeout(() => {
             this.update();

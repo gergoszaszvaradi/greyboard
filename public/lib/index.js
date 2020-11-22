@@ -1,7 +1,7 @@
 "use strict";
 
 $(document).ready(() => {
-    $("#baord_file").change((e) => {
+    $("#baord_file").on("change", (e) => {
         // var xhr = new XMLHttpRequest();
         // xhr.open('POST', '/load');
 

@@ -38,7 +38,7 @@ export class Application {
     keyboard = new Keyboard();
     shortcuts : Array<Shortcut> = [];
 
-    onresize = new Delegate(); 
+    onresize = new Delegate();
     onmousedown = new Delegate();
     onmousemove = new Delegate();
     onmouseup = new Delegate();
@@ -55,6 +55,8 @@ export class Application {
     constructor(){
         let canvas = document.getElementById("canvas");
         this.graphics = new Graphics(canvas as HTMLCanvasElement);
+        //@ts-ignore
+        createjs.Ticker.timingMode = createjs.Ticker.RAF;
 
         this.resize(window.innerWidth, window.innerHeight);
 

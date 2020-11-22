@@ -1,5 +1,6 @@
 import * as Util from "./util.js"
 import { app } from "./app.js";
+import { createJsxAttribute } from "typescript";
 
 export default class Viewport {
 
@@ -12,8 +13,8 @@ export default class Viewport {
     }
 
     panTo(x : number, y : number){
-        this.position.x = x;
-        this.position.y = y;
+        // @ts-ignore
+        createjs.Tween.get(this.position).to({x: -(x - (app.width / this.scale) / 2), y: -(y - (app.height / this.scale) / 2)}, 500, createjs.Ease.cubicOut);
     }
 
     zoom(cx : number, cy : number, d : number){

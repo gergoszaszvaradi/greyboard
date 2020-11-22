@@ -18,7 +18,7 @@ app.use(express_fileupload_1.default({
     safeFileNames: true,
     useTempFiles: true,
     tempFileDir: './tmp/',
-    limits: { fileSize: 1000000 },
+    limits: { fileSize: 10000000 },
     abortOnLimit: true
 }));
 app.get("/", (req, res) => {
@@ -30,6 +30,7 @@ app.get("/new", (req, res) => {
     res.end();
 });
 app.post("/load", (req, res) => {
+    console.log("REQUEST: " + req.files);
     greyboard.loadFromFile(req.files.file.tempFilePath, (err, bid) => {
         if (err) {
             res.send(err.message);

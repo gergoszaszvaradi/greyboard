@@ -368,7 +368,7 @@ export class BoardImage extends BoardItem {
     }
 }
 
-export class BoardArrow extends BoardItem{
+export class BoardArrow extends BoardItem {
     start : Util.Point;
     end : Util.Point;
     color : string = "#ffffff";
@@ -415,12 +415,11 @@ export class BoardArrow extends BoardItem{
 
         app.graphics.fill(this.color);
         let angle = Math.atan2(ey - sy, ex - sx);
-        let triangle : Array<Util.Point> = [];
-        for(let a = 0; a < Math.PI*2; a += (Math.PI*2)/3){
-            let x = Math.cos(a + angle) * this.weight;
-            let y = Math.sin(a + angle) * this.weight;
-            triangle.push(new Util.Point(ex + x, ey + y));
-        }
-        app.graphics.polygon(triangle);
+        let tx1 = Math.cos(angle + Math.PI * 0.8) * this.weight * 3 + ex;
+        let tx2 = Math.cos(angle - Math.PI * 0.8) * this.weight * 3 + ex;
+        let ty1 = Math.sin(angle + Math.PI * 0.8) * this.weight * 3 + ey;
+        let ty2 = Math.sin(angle - Math.PI * 0.8) * this.weight * 3 + ey;
+        app.graphics.line(tx1, ty1, ex, ey);
+        app.graphics.line(tx2, ty2, ex, ey);
     };
 }

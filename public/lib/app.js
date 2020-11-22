@@ -109,6 +109,12 @@ app.ui.onaction.add((action, e) => {
             if (color)
                 toolbox.selectColor(color);
             break;
+        case "pan-to-user":
+            let cid = e.getAttribute("data-user");
+            if (cid && cid != socket.cid) {
+                viewport.panTo(socket.clientCoords[cid].x, socket.clientCoords[cid].y);
+            }
+            break;
     }
 });
 app.registerShortcut(90, true, false, false, () => { ActionStack.undo(); });

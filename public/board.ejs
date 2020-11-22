@@ -8,12 +8,87 @@
 
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+        <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
         <script type="module" src="/lib/app.js"></script>
     </head>
     <body>
         <div class="app">
             <canvas id="canvas"></canvas>
-            <div class="ui">
+            <div class="ui-new">
+                <div class="section-top">
+                    <div id="boardactions" class="toolbar horizontal">
+                        <div class="toolbar-textfield">
+                            <input id="board-name" type="text" value="New board">
+                            <span id="board-static-name" class="u-noselect">New board</span>
+                        </div>
+                        <div class="toolbar-separator"></div>
+                        <div class="toolbar-group horizontal">
+                            <button class="toolbar-button" action="save"><i class="mdi mdi-content-save"></i></button>
+                            <button class="toolbar-button" action="export"><i class="mdi mdi-export"></i></button>
+                            <button class="toolbar-button" action="clear"><i class="mdi mdi-delete"></i></button>
+                            <button class="toolbar-button" action="undo"><i class="mdi mdi-undo"></i></button>
+                            <button class="toolbar-button" action="redo"><i class="mdi mdi-redo"></i></button>
+                        </div>
+                    </div>
+                    <div class="spacer"></div>
+                    <div id="users" class="toolbar horizontal transparent">
+                    </div>
+                </div>
+                <div class="section-left">
+                    <div id="tools" class="toolbar vertical">
+                        <button class="toolbar-button" action="tool-select"><i class="mdi mdi-select"></i></button>
+                        <button class="toolbar-button" action="tool-pencil" class="active"><i class="mdi mdi-pencil"></i></button>
+                        <button class="toolbar-button" action="tool-eraser"><i class="mdi mdi-eraser"></i></button>
+                        <!-- <button class="toolbar-button" action="tool-text"><i class="mdi mdi-format-title"></i></button> -->
+                        <div class="toolbar-popup">
+                            <button class="toolbar-button" action="popup-shapes"><i class="mdi mdi-shape"></i></button>
+                            <div class="toolbar-popup-content">
+                                <div class="toolbar-group horizontal">
+                                    <button class="toolbar-button" action="tool-rectangle"><i class="mdi mdi-rectangle-outline"></i></button>
+                                    <button class="toolbar-button" action="tool-fillrectangle"><i class="mdi mdi-rectangle"></i></button>
+                                    <button class="toolbar-button" action="tool-ellipse"><i class="mdi mdi-ellipse-outline"></i></button>
+                                    <button class="toolbar-button" action="tool-fillellipse"><i class="mdi mdi-ellipse"></i></button>
+                                    <button class="toolbar-button" action="tool-line"><i class="mdi mdi-vector-line"></i></button>
+                                    <button class="toolbar-button" action="tool-arrow"><i class="mdi mdi-arrow-top-right"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toolbar-popup">
+                            <button class="toolbar-button" action="popup-colors"><i class="mdi mdi-palette"></i></button>
+                            <div class="toolbar-popup-content">
+                                <div class="toolbar-group horizontal">
+                                    <button class="toolbar-button" action="set-color" color="#FAFAFA" style="color: #FAFAFA !important" class="active"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#757575" style="color: #757575 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#FFEB3B" style="color: #FFEB3B !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#FF9800" style="color: #FF9800 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#F44336" style="color: #F44336 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#9C27B0" style="color: #9C27B0 !important"><div class="toolbar-color"></div></button>
+                                </div>
+                                <div class="toolbar-group horizontal">
+                                    <button class="toolbar-button" action="set-color" color="#E0E0E0" style="color: #E0E0E0 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#212121" style="color: #212121 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#4CAF50" style="color: #4CAF50 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#009688" style="color: #009688 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#2196F3" style="color: #2196F3 !important"><div class="toolbar-color"></div></button>
+                                    <button class="toolbar-button" action="set-color" color="#3F51B5" style="color: #3F51B5 !important"><div class="toolbar-color"></div></button>
+                                </div>
+                                <div class="toolbar-group horizontal">
+                                    <div class="range">
+                                        <span class="u-noselect">Stroke size</span>
+                                        <input id="stroke-size" type="range" min="1" max="20" step="1" value="2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toolbar-separator"></div>
+                        <button class="toolbar-button" action="zoomin"><i class="mdi mdi-plus"></i></button>
+                        <span id="zoomlevel" class="toolbar-text u-noselect">100%</span>
+                        <button class="toolbar-button" action="zoomout"><i class="mdi mdi-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <div class="ui">
                 <div id="boardactions" class="toolbar">
                     <div class="toolbar-text">
                         <input id="board-name" type="text" value="New board">
@@ -86,7 +161,7 @@
                 <div id="settings-button" class="toolbar">
                     <button action="settings"><i class="mdi mdi-cog"></i></button>
                 </div>
-            </div>
+            </div> -->
         </div>
     </body>
 </html>

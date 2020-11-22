@@ -15,7 +15,7 @@ app.use(fileUpload({
     safeFileNames: true,
     useTempFiles : true,
     tempFileDir : './tmp/',
-    limits: { fileSize: 1000000 },
+    limits: { fileSize: 10000000 },
     abortOnLimit: true
 }));
 
@@ -28,6 +28,7 @@ app.get("/new", (req : express.Request, res : express.Response) => {
     res.end();
 });
 app.post("/load", (req : express.Request, res : express.Response) => {
+    console.log("REQUEST: " + req.files);
     // @ts-ignore
     greyboard.loadFromFile(req.files.file.tempFilePath, (err : Error | null, bid : string) => {
         if(err){

@@ -7,6 +7,7 @@ exports.GreyBoard = exports.GBBuffer = void 0;
 const socket_io_1 = __importDefault(require("socket.io"));
 const fs_1 = __importDefault(require("fs"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
+const nicknames_js_1 = __importDefault(require("./nicknames.js"));
 ;
 class GBBuffer {
     constructor(size = 0) {
@@ -62,6 +63,8 @@ class GreyBoard {
                 }
                 bid = data.data.bid;
                 socket.join(bid);
+                if (data.data.name == null)
+                    data.data.name = nicknames_js_1.default();
                 this.loadedBoards[bid].clients[socket.id] = data.data;
                 socket.emit("room:state", this.loadedBoards[bid]);
                 socket.broadcast.to(bid).emit("client:connect", data.data);
@@ -74,8 +77,10 @@ class GreyBoard {
                 this.io.to(bid).emit("client:disconnect", socket.id);
             });
             socket.on("client:update", (data) => {
-                if (data.cid in this.loadedBoards[data.data.bid].clients)
-                    this.loadedBoards[data.data.bid].clients[data.cid] = data.data;
+                if (data.cid in this.loadedBoards[data.data.bid].clients) {
+                    this.loadedBoards[data.data.bid].clients[data.cid].x = data.data.x;
+                    this.loadedBoards[data.data.bid].clients[data.cid].y = data.data.y;
+                }
             });
             socket.on("board:name", (data) => {
                 this.loadedBoards[bid].name = data.data;

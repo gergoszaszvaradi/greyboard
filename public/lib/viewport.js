@@ -10,8 +10,7 @@ export default class Viewport {
         this.position.y += dy / this.scale;
     }
     panTo(x, y) {
-        this.position.x = x;
-        this.position.y = y;
+        createjs.Tween.get(this.position).to({ x: -(x - (app.width / this.scale) / 2), y: -(y - (app.height / this.scale) / 2) }, 500, createjs.Ease.cubicOut);
     }
     zoom(cx, cy, d) {
         if (Util.inRange(this.scale - d, 0.1, 4) == false)

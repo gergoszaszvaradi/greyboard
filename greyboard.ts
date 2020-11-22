@@ -3,6 +3,7 @@ import http from "http"
 import express from "express";
 import fs from "fs";
 import fetch from "node-fetch"
+import generateName from "./nicknames.js"
 // import { Board, BoardArrow, BoardItem, BoardItemType, BoardPath, BoardRectangle } from "./public/lib/board";
 // import * as Util from "./public/lib/util";
 
@@ -79,7 +80,7 @@ export class GreyBoard {
 
             socket.on("connected", (data) => {
                 if(!this.boardExists(data.data.bid)){
-                    socket.disconnect(true)
+                    socket.disconnect(true);
                     return;
                 }
                 for(let room in socket.rooms){
@@ -87,6 +88,8 @@ export class GreyBoard {
                 }
                 bid = data.data.bid;
                 socket.join(bid);
+                if(data.data.name == null)
+                    data.data.name = generateName();
                 this.loadedBoards[bid].clients[socket.id] = data.data;
                 socket.emit("room:state", this.loadedBoards[bid]);
                 socket.broadcast.to(bid).emit("client:connect", data.data);
@@ -99,8 +102,10 @@ export class GreyBoard {
             });
 
             socket.on("client:update", (data) => {
-                if(data.cid in this.loadedBoards[data.data.bid].clients)
-                    this.loadedBoards[data.data.bid].clients[data.cid] = data.data;
+                if(data.cid in this.loadedBoards[data.data.bid].clients){
+                    this.loadedBoards[data.data.bid].clients[data.cid].x = data.data.x;
+                    this.loadedBoards[data.data.bid].clients[data.cid].y = data.data.y;
+                }
             });
 
             socket.on("board:name", (data) => {
