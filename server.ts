@@ -24,7 +24,8 @@ app.get("/", (req : express.Request, res : express.Response) => {
 });
 app.get("/new", (req : express.Request, res : express.Response) => {
     let id = greyboard.createTemporaryBoard();
-    res.redirect(301, `/b/${id}`);
+    res.statusCode = 307;
+    res.redirect(`/b/${id}`);
     res.end();
 });
 app.post("/load", (req : express.Request, res : express.Response) => {
