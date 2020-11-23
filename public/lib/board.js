@@ -198,7 +198,6 @@ export class BoardPath extends BoardItem {
         super(cid);
         this.color = "#ffffff";
         this.weight = 2;
-        this.points = points;
         this.color = color;
         this.weight = weight;
         this.type = BoardItemType.Path;
@@ -206,6 +205,7 @@ export class BoardPath extends BoardItem {
         this.rect.y = Infinity;
         this.rect.w = -Infinity;
         this.rect.h = -Infinity;
+        this.points = points;
     }
     normalize() {
         for (let point of this.points) {
@@ -214,6 +214,9 @@ export class BoardPath extends BoardItem {
         }
     }
     optimize() {
+        let points = [];
+        let total_dist = 0;
+        points.push(this.points[this.points.length - 1]);
         for (let i = this.points.length - 2; i >= 2; i--) {
             let next = this.points[i];
             let curr = this.points[i - 1];
@@ -222,11 +225,18 @@ export class BoardPath extends BoardItem {
             if (dist > 9) {
                 let a1 = Util.angle(prev.x, prev.y, curr.x, curr.y);
                 let a2 = Util.angle(curr.x, curr.y, next.x, next.y);
-                if (Math.abs(a1 - a2) < 3) {
-                    this.points.splice(i - 1, 1);
-                }
+                if (Math.abs(a1 - a2) < 3)
+                    continue;
             }
+            total_dist += dist;
+            if (total_dist < 5)
+                continue;
+            total_dist = 0;
+            points.push(this.points[i]);
         }
+        points.push(this.points[0]);
+        console.log("Compression rate: " + (100 - (points.length * 100) / this.points.length) + "% (" + points.length + "/" + this.points.length + ")");
+        this.points = points;
     }
     calculateRect() {
         for (let point of this.points) {
@@ -329,7 +339,6 @@ export class BoardImage extends BoardItem {
         this.img = new Image();
         this.src = src;
         this.img.src = src;
-        console.log(src);
         this.img.onload = () => {
             this.rect.w = this.img.width;
             this.rect.h = this.img.height;
@@ -366,7 +375,6 @@ export class BoardArrow extends BoardItem {
         this.end = new Util.Point((this.end.x - this.rect.x) / this.rect.w, (this.end.y - this.rect.y) / this.rect.h);
     }
     calculateRect() {
-        console.log(this.start, this.end);
         this.rect.x = (this.start.x < this.end.x) ? this.start.x : this.end.x;
         this.rect.w = Math.abs(this.end.x - this.start.x);
         this.rect.y = (this.start.y < this.end.y) ? this.start.y : this.end.y;

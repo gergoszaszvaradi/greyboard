@@ -16,7 +16,7 @@ export class Toolbox {
 
     selected : Tool;
     color : string = "#fafafa";
-    weight : number = 2;
+    weight : number = 3;
 
 
     constructor(){
@@ -91,6 +91,7 @@ export class Select extends Tool {
         }else if(Util.isPointInRect(mp.x, mp.y, this.bb.x, this.bb.y, this.bb.w, this.bb.h)){
             this.mode = SelectToolMode.Move;
             this.moveStart = new Util.Point(this.bb.x, this.bb.y);
+            app.setCursor("move");
         }else{
             this.mode = SelectToolMode.Select;
             this.wasDragged = false;
@@ -180,6 +181,7 @@ export class Select extends Tool {
     }
 
     calculateBoundingBox(){
+        this.bb = new Util.Rect(Infinity, Infinity, -Infinity, -Infinity);
         for(let i of this.selection){
             let item = board.items[i];
             if(item.rect.x < this.bb.x) this.bb.x = item.rect.x;
@@ -199,8 +201,10 @@ export class Select extends Tool {
     scaleSelection(dx : number, dy : number){
         if(this.bb.w - dx < 10 || this.bb.h - dy < 10) return;
 
-        // this.bb.w = this.bb.h * this.scaleAspect;
-        // dx = dy * this.scaleAspect;
+        if(app.keyboard.shift){
+            let aspectRatio = this.scaleAspect.x / this.scaleAspect.y;
+            dy = this.bb.h - ((this.bb.w - dx) / aspectRatio);
+        }
 
         for(let i of this.selection){
             let item = board.items[i];
@@ -208,7 +212,6 @@ export class Select extends Tool {
             item.rect.y -= ((item.rect.y - this.bb.y) / this.bb.h) * dy;
             item.rect.w -= (item.rect.w / this.bb.w) * dx;
             item.rect.h -= (item.rect.h / this.bb.h) * dy;
-            // item.onTransformed();
         }
         this.bb.w -= dx;
         this.bb.h -= dy;
@@ -286,6 +289,7 @@ export class Pencil extends Tool {
     }
     onClickUp(){
         if(this.buffer.length == 0) return;
+        this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
 
         let path = new BoardPath(socket.cid, this.buffer, toolbox.color, toolbox.weight);
 
@@ -326,7 +330,6 @@ export class Eraser extends Tool {
 
     onFrameUpdate(){
         if(app.mouse.pressed && app.mouse.button == 0){
-            console.log("eraser");
             if(this.trail.length > 5) this.trail.shift();
             let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
             this.trail.push(mp);

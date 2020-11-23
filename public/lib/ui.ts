@@ -40,23 +40,6 @@ export class UI {
                 }
             });
 
-            $(".panel .button").on("mousedown", (e) => {
-                $(e.currentTarget).addClass("ripple");
-                setTimeout(() => {$(e.currentTarget).removeClass("ripple")}, 500);
-            });
-
-            $(".toolbar #grab").on("mousedown", (e) => {
-                let parent = $(e.currentTarget).parent();
-                if(parent){
-                    this.dragInfo = {
-                        e: parent[0],
-                        dx: e.clientX - parseInt(parent.css("left")),
-                        dy: e.clientY - parseInt(parent.css("top"))
-                    };
-                    app.setCursor("move");
-                }
-            });
-
             $("#board-static-name").on("click", (e) => {
                 $(e.currentTarget).hide();
                 let input = $("#board-name");
@@ -97,13 +80,5 @@ export class UI {
     setActive(all : string, e : string) {
         $(all).removeClass("active");
         $(e).addClass("active");
-    }
-
-    showPanel(panel : string){
-        $(panel).fadeIn();
-    }
-
-    hideAllPanels() {
-        $(".panel").fadeOut();
     }
 }

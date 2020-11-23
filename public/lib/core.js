@@ -54,6 +54,7 @@ export class Application {
             this.keyboard.alt = e.altKey;
         });
         window.addEventListener("keyup", (e) => {
+            console.log(e);
             for (let shortcut of this.shortcuts)
                 if (e.ctrlKey == shortcut.ctrl && e.shiftKey == shortcut.shift && e.altKey == shortcut.alt && e.keyCode == shortcut.key)
                     shortcut.callback();

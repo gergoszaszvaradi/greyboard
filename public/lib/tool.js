@@ -14,7 +14,7 @@ export class Toolbox {
         this.line = new Line();
         this.arrow = new Arrow();
         this.color = "#fafafa";
-        this.weight = 2;
+        this.weight = 3;
         this.selected = this.pencil;
     }
     selectTool(tool) {
@@ -82,6 +82,7 @@ export class Select extends Tool {
         else if (Util.isPointInRect(mp.x, mp.y, this.bb.x, this.bb.y, this.bb.w, this.bb.h)) {
             this.mode = SelectToolMode.Move;
             this.moveStart = new Util.Point(this.bb.x, this.bb.y);
+            app.setCursor("move");
         }
         else {
             this.mode = SelectToolMode.Select;
@@ -174,6 +175,7 @@ export class Select extends Tool {
         this.mode = SelectToolMode.None;
     }
     calculateBoundingBox() {
+        this.bb = new Util.Rect(Infinity, Infinity, -Infinity, -Infinity);
         for (let i of this.selection) {
             let item = board.items[i];
             if (item.rect.x < this.bb.x)
@@ -196,6 +198,10 @@ export class Select extends Tool {
     scaleSelection(dx, dy) {
         if (this.bb.w - dx < 10 || this.bb.h - dy < 10)
             return;
+        if (app.keyboard.shift) {
+            let aspectRatio = this.scaleAspect.x / this.scaleAspect.y;
+            dy = this.bb.h - ((this.bb.w - dx) / aspectRatio);
+        }
         for (let i of this.selection) {
             let item = board.items[i];
             item.rect.x -= ((item.rect.x - this.bb.x) / this.bb.w) * dx;
@@ -279,6 +285,7 @@ export class Pencil extends Tool {
     onClickUp() {
         if (this.buffer.length == 0)
             return;
+        this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
         let path = new BoardPath(socket.cid, this.buffer, toolbox.color, toolbox.weight);
         path.optimize();
         path.calculateRect();
@@ -312,7 +319,6 @@ export class Eraser extends Tool {
     }
     onFrameUpdate() {
         if (app.mouse.pressed && app.mouse.button == 0) {
-            console.log("eraser");
             if (this.trail.length > 5)
                 this.trail.shift();
             let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
