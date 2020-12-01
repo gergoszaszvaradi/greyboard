@@ -22,7 +22,8 @@ app.use(express_fileupload_1.default({
     abortOnLimit: true
 }));
 app.get("/", (req, res) => {
-    res.render("index");
+    let publicBoards = greyboard.getPublicBoards();
+    res.render("index", { publicBoards });
 });
 app.get("/new", (req, res) => {
     let id = greyboard.createTemporaryBoard();

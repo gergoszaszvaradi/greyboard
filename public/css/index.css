@@ -5,7 +5,7 @@ body{
 
 .container{
     display: flex;
-    height: 100vh;
+    height: 75vh;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -81,4 +81,36 @@ h1{
 
 label{
     cursor: pointer;
+}
+
+.public-boards{
+    display: flex;
+    width: 50%;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.board {
+    width: 300px;
+    background-color: #686868;
+    box-shadow: 0 0 0 0 #444444;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin: 10px;
+    cursor: pointer;
+    text-decoration: none;
+}
+.board .board-thumbnail{
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.2);
+}
+.board .board-name{
+    color: white;
+    padding: 10px 20px;
 }

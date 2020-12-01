@@ -65,6 +65,7 @@ export class Select extends Tool {
         this.mode = SelectToolMode.None;
         this.moveStart = new Util.Point();
         this.scaleAspect = new Util.Point();
+        this.moveSpeed = 1;
     }
     onSelected() {
         this.clearSelection();
@@ -246,6 +247,21 @@ export class Select extends Tool {
         }
         if (this.selection.length == 0)
             return;
+        if (app.keyboard.pressed == true) {
+            this.moveSpeed += 0.02;
+            if (this.moveSpeed > 3)
+                this.moveSpeed = 3;
+            if (app.keyboard.key == 37)
+                this.moveSelection(1 * this.moveSpeed, 0);
+            if (app.keyboard.key == 38)
+                this.moveSelection(0, 1 * this.moveSpeed);
+            if (app.keyboard.key == 39)
+                this.moveSelection(-1 * this.moveSpeed, 0);
+            if (app.keyboard.key == 40)
+                this.moveSelection(0, -1 * this.moveSpeed);
+        }
+        else
+            this.moveSpeed = 1;
         if (app.mouse.pressed || this.selection.length > 1) {
             app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
             app.graphics.dash([5, 5]);

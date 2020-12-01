@@ -16,6 +16,7 @@ export class Board {
     constructor() {
         this.name = "New board";
         this.items = {};
+        this.public = false;
     }
     add(items) {
         for (let item of items)
@@ -215,7 +216,6 @@ export class BoardPath extends BoardItem {
     }
     optimize() {
         let points = [];
-        let total_dist = 0;
         points.push(this.points[this.points.length - 1]);
         for (let i = this.points.length - 2; i >= 2; i--) {
             let next = this.points[i];
@@ -228,10 +228,6 @@ export class BoardPath extends BoardItem {
                 if (Math.abs(a1 - a2) < 3)
                     continue;
             }
-            total_dist += dist;
-            if (total_dist < 5)
-                continue;
-            total_dist = 0;
             points.push(this.points[i]);
         }
         points.push(this.points[0]);

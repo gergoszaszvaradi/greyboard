@@ -20,7 +20,8 @@ app.use(fileUpload({
 }));
 
 app.get("/", (req : express.Request, res : express.Response) => {
-    res.render("index");
+    let publicBoards = greyboard.getPublicBoards();
+    res.render("index", {publicBoards});
 });
 app.get("/new", (req : express.Request, res : express.Response) => {
     let id = greyboard.createTemporaryBoard();
@@ -43,7 +44,7 @@ app.post("/load", (req : express.Request, res : express.Response) => {
 });
 app.get("/b/:id", (req : express.Request, res : express.Response) => {
     if(greyboard.boardExists(req.params.id)){
-        res.render("board", {board: { id: req.params.id, name:"New Board"} });
+        res.render("board", {board: { id: req.params.id, name: "New Board"} });
     }
     res.end();
 });

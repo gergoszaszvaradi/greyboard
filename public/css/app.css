@@ -3,7 +3,7 @@ body{
     font-size: 16px;
 }
 
-.ui-new {
+.ui {
     position: absolute;
     top: 0;
     left: 0;
@@ -11,13 +11,13 @@ body{
     bottom: 0;
     pointer-events: none;
 }
-.ui-new .section-top {
+.ui .section-top {
     position: fixed;
     display: flex;
     top: 20px;
     left: 20px;
 }
-.ui-new .section-left {
+.ui .section-left {
     position: fixed;
     display: flex;
     top: 80px;
@@ -171,6 +171,10 @@ body{
     -moz-user-select: -moz-none;
     pointer-events: none;
 }
+.toolbar-button.afk .toolbar-user{
+    background-color: #bbb;
+    opacity: 0.75;
+}
 .toolbar#users .toolbar-button{
     background-color: transparent !important;
 }
@@ -199,6 +203,25 @@ body{
     opacity: 0.5;
     font-weight: 600;
     margin: 5px 5px;
+}
+
+
+.window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    z-index: 1;
+    pointer-events: all;
+    padding: 20px 10px;
+}
+
+#editor{
+    width: 50vw;
+    height: 30vh;
 }
 
 

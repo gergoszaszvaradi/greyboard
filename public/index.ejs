@@ -3,6 +3,7 @@
         <title>Greyboard</title>
         <link rel="stylesheet" href="/css/util.css">
         <link rel="stylesheet" href="/css/index.css">
+        <link rel="stylesheet" href="//cdn.materialdesignicons.com/5.2.45/css/materialdesignicons.min.css">
         
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script type="module" src="./lib/index.js"></script>
@@ -16,6 +17,16 @@
                 <input id="baord_file" class="u-hide" type="file" name="baord_file">
                 <label for="baord_file">Load an existing board</label>
             </div>
+        </div>
+        <div class="public-boards">
+            <% for(var i=0; i < publicBoards.length; i++) {%>
+                <a href="/b/<%= publicBoards[i].id %>" class="board">
+                    <div class="board-thumbnail">
+                        <i class="mdi mdi-bulletin-board"></i>
+                    </div>
+                    <div class="board-name"><%= publicBoards[i].name %></div>
+                </a>
+            <% } %>
         </div>
     </body>
 </html>

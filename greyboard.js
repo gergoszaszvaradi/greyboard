@@ -8,7 +8,6 @@ const socket_io_1 = __importDefault(require("socket.io"));
 const fs_1 = __importDefault(require("fs"));
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const nicknames_js_1 = __importDefault(require("./nicknames.js"));
-;
 class GBBuffer {
     constructor(size = 0) {
         this.buffer = Buffer.allocUnsafe(size);
@@ -80,6 +79,7 @@ class GreyBoard {
                 if (data.cid in this.loadedBoards[data.data.bid].clients) {
                     this.loadedBoards[data.data.bid].clients[data.cid].x = data.data.x;
                     this.loadedBoards[data.data.bid].clients[data.cid].y = data.data.y;
+                    this.loadedBoards[data.data.bid].clients[data.cid].afk = data.data.afk;
                 }
             });
             socket.on("board:name", (data) => {
@@ -135,6 +135,11 @@ class GreyBoard {
                     delete this.loadedBoards[bid].items[id];
                 socket.broadcast.to(bid).emit("board:clear", null);
             });
+            socket.on("board:visibility", (data) => {
+                this.loadedBoards[bid].public = data.data;
+                socket.broadcast.to(bid).emit("board:v", data.data);
+                console.log(data);
+            });
         });
         this.hearthbeat();
         this.keepHostAlive();
@@ -172,7 +177,8 @@ class GreyBoard {
             id: id,
             name: "New board",
             items: {},
-            clients: {}
+            clients: {},
+            public: false
         };
         return id;
     }
@@ -182,7 +188,8 @@ class GreyBoard {
             id: id,
             name: "New board",
             items: {},
-            clients: {}
+            clients: {},
+            public: false
         };
         return id;
     }
@@ -190,6 +197,14 @@ class GreyBoard {
         if (!this.validateID(id))
             return false;
         return (id in this.loadedBoards);
+    }
+    getPublicBoards() {
+        let publicBoards = [];
+        for (let i in this.loadedBoards) {
+            if (this.loadedBoards[i].public)
+                publicBoards.push(this.loadedBoards[i]);
+        }
+        return publicBoards;
     }
     writeToResponse(res, bid) {
         if (!(bid in this.loadedBoards))

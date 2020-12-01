@@ -8,6 +8,7 @@ export interface IClient {
     x : number;
     y : number;
     name : string;
+    afk : boolean;
 }
 
 export class ClientCoord {
@@ -61,7 +62,8 @@ export class Socket {
                 bid: bid,
                 x: mp.x,
                 y: mp.y,
-                name: window.localStorage.getItem("gb_name") || null
+                name: window.localStorage.getItem("gb_name") || null,
+                focused: true
             });
             this.clientCoords[this.cid] = new ClientCoord(app.mouse.x, app.mouse.y);
             
@@ -78,16 +80,35 @@ export class Socket {
                         }
                     }
                 }
+                board.name = data;
+                app.ui.setText("#board-static-name", data.name);
+                board.public = data.public;
+                if(data.public)
+                    $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+                else
+                    $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
                 board.addFromObjects(Object.values(data.items));
 
             });
 
             this.socket.on("client:state", (data : {[key : string] : IClient}) => {
+                let users = document.querySelector("#users");
                 for(let c in data){
                     if(!(c in this.clientCoords)){
                         this.clientCoords[c] = new ClientCoord(data[c].x, data[c].y);
                     }
                     this.clientCoords[c].set(data[c].x, data[c].y);
+
+                    if(c in this.clients){
+                        if(this.clients[c].afk != data[c].afk){
+                            if(users) {
+                                if(data[c].afk)
+                                    users.querySelector(`*[data-user="${c}"]`)?.classList.add("afk");
+                                else
+                                    users.querySelector(`*[data-user="${c}"]`)?.classList.remove("afk");
+                            }
+                        }
+                    }
                 }
                 this.clients = data;
                 this.lastHeathBeatTime = (new Date()).getTime();
@@ -129,6 +150,13 @@ export class Socket {
             this.socket.on("board:clear", (data : any) => {
                 board.clear();
             });
+            this.socket.on("board:v", (data : any) => {
+                board.public = data;
+                if(data)
+                    $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+                else
+                    $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
+            });
 
             this.update();
         });
@@ -144,7 +172,8 @@ export class Socket {
             cid: this.cid,
             bid: this.bid,
             x: mp.x,
-            y: mp.y
+            y: mp.y,
+            afk: !app.focused
         });
         setTimeout(() => {
             this.update();

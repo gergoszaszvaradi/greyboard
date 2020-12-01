@@ -49,16 +49,22 @@ app.onupdate.add((ts : number) => {
     toolbox.selected.onFrameUpdate();
     toolbox.selected.onDraw();
 
-    app.graphics.fill("#fc8210");
     app.graphics.font("Arial", 14 / viewport.scale, "left", "middle");
 
     let percent = ((new Date()).getTime() - socket.lastHeathBeatTime)/200;
     for(let cid in socket.clientCoords){
         if(cid == socket.cid) continue;
-        socket.clientCoords[cid].interpolate(percent);
-        app.graphics.img(socket.clientCoords[cid].x, socket.clientCoords[cid].y, 16 / viewport.scale, 16 / viewport.scale, "/images/cursor.png");
-        if(socket.clients[cid])
+        if(socket.clients[cid]){
+            socket.clientCoords[cid].interpolate(percent);
+            if(socket.clients[cid].afk){
+                app.graphics.img(socket.clientCoords[cid].x, socket.clientCoords[cid].y, 16 / viewport.scale, 16 / viewport.scale, "/images/cursor_afk.png");
+                app.graphics.fill("#fc821084");
+            }else{
+                app.graphics.img(socket.clientCoords[cid].x, socket.clientCoords[cid].y, 16 / viewport.scale, 16 / viewport.scale, "/images/cursor.png");
+                app.graphics.fill("#fc8210ff");
+            }
             app.graphics.text(socket.clientCoords[cid].x + 24 / viewport.scale, socket.clientCoords[cid].y + 8 / viewport.scale, socket.clients[cid].name);
+        }
     }
 });
 
@@ -76,6 +82,14 @@ app.ui.onaction.add((action : string, e : Element) => {
             break;
         case "export":
             Exporter.exportAsPNG();
+            break;
+        case "visibility":
+            socket.send("board:visibility", !board.public);
+            board.public = !board.public;
+            if(board.public)
+                $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+            else
+                $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
             break;
         case "clear":
             board.items = {};
@@ -152,10 +166,10 @@ app.registerShortcut(67, false, false, false, () => { toolbox.selectTool(toolbox
 app.registerShortcut(67, false, true, false, () => { toolbox.selectTool(toolbox.fillellipse); });
 app.registerShortcut(65, false, false, false, () => { toolbox.selectTool(toolbox.arrow); });
 
-app.registerShortcut(37, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(10 / viewport.scale, 0); });
-app.registerShortcut(38, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, 10 / viewport.scale); });
-app.registerShortcut(39, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(-10 / viewport.scale, 0); });
-app.registerShortcut(40, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, -10 / viewport.scale); });
+// app.registerShortcut(37, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(10 / viewport.scale, 0); });
+// app.registerShortcut(38, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, 10 / viewport.scale); });
+// app.registerShortcut(39, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(-10 / viewport.scale, 0); });
+// app.registerShortcut(40, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, -10 / viewport.scale); });
 
 ActionStack.onundo.add(() => {
     toolbox.select.clearSelection();

@@ -29,11 +29,14 @@ export class Application {
         this.mouse = new Mouse();
         this.keyboard = new Keyboard();
         this.shortcuts = [];
+        this.focused = true;
         this.onresize = new Delegate();
         this.onmousedown = new Delegate();
         this.onmousemove = new Delegate();
         this.onmouseup = new Delegate();
         this.onmousewheel = new Delegate();
+        this.onkeydown = new Delegate();
+        this.onkeyup = new Delegate();
         this.oncopy = new Delegate();
         this.onpaste = new Delegate();
         this.onupdate = new Delegate();
@@ -52,6 +55,7 @@ export class Application {
             this.keyboard.ctrl = e.ctrlKey;
             this.keyboard.shift = e.shiftKey;
             this.keyboard.alt = e.altKey;
+            this.onkeydown.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });
         window.addEventListener("keyup", (e) => {
             console.log(e);
@@ -59,12 +63,19 @@ export class Application {
                 if (e.ctrlKey == shortcut.ctrl && e.shiftKey == shortcut.shift && e.altKey == shortcut.alt && e.keyCode == shortcut.key)
                     shortcut.callback();
             this.keyboard = new Keyboard();
+            this.onkeyup.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });
         window.addEventListener("copy", (e) => {
             this.oncopy.invoke(e.clipboardData);
         });
         window.addEventListener("paste", (e) => {
             this.onpaste.invoke(e.clipboardData);
+        });
+        window.addEventListener("focus", (e) => {
+            this.focused = true;
+        });
+        window.addEventListener("blur", (e) => {
+            this.focused = false;
         });
         this.graphics.canvas.addEventListener("mousedown", (e) => {
             this.mouse.dx = e.clientX;
