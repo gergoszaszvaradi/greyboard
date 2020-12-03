@@ -66,6 +66,7 @@ export class Select extends Tool {
         this.moveStart = new Util.Point();
         this.scaleAspect = new Util.Point();
         this.moveSpeed = 1;
+        this.movingWithKeyboard = false;
     }
     onSelected() {
         this.clearSelection();
@@ -199,7 +200,7 @@ export class Select extends Tool {
     scaleSelection(dx, dy) {
         if (this.bb.w - dx < 10 || this.bb.h - dy < 10)
             return;
-        if (app.keyboard.shift) {
+        if (app.keyboard.isPressed(16)) {
             let aspectRatio = this.scaleAspect.x / this.scaleAspect.y;
             dy = this.bb.h - ((this.bb.w - dx) / aspectRatio);
         }
@@ -247,21 +248,30 @@ export class Select extends Tool {
         }
         if (this.selection.length == 0)
             return;
-        if (app.keyboard.pressed == true) {
+        if (app.keyboard.isAnyPressed()) {
+            if (this.movingWithKeyboard == false) {
+                this.moveStart = new Util.Point(this.bb.x, this.bb.y);
+                this.movingWithKeyboard = true;
+            }
             this.moveSpeed += 0.02;
             if (this.moveSpeed > 3)
                 this.moveSpeed = 3;
-            if (app.keyboard.key == 37)
+            if (app.keyboard.isPressed(37))
                 this.moveSelection(1 * this.moveSpeed, 0);
-            if (app.keyboard.key == 38)
+            if (app.keyboard.isPressed(38))
                 this.moveSelection(0, 1 * this.moveSpeed);
-            if (app.keyboard.key == 39)
+            if (app.keyboard.isPressed(39))
                 this.moveSelection(-1 * this.moveSpeed, 0);
-            if (app.keyboard.key == 40)
+            if (app.keyboard.isPressed(40))
                 this.moveSelection(0, -1 * this.moveSpeed);
         }
-        else
+        else {
+            if (this.movingWithKeyboard) {
+                socket.send("board:move", { ids: this.selection, dx: this.moveStart.x - this.bb.x, dy: this.moveStart.y - this.bb.y });
+                this.movingWithKeyboard = false;
+            }
             this.moveSpeed = 1;
+        }
         if (app.mouse.pressed || this.selection.length > 1) {
             app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
             app.graphics.dash([5, 5]);
@@ -292,6 +302,7 @@ export class Pencil extends Tool {
         super("Pencil");
         this.buffer = [];
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
     }
@@ -327,6 +338,7 @@ export class Eraser extends Tool {
         super("Eraser");
         this.trail = [];
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         this.trail = [];
     }
@@ -383,6 +395,7 @@ export class Rectangle extends Tool {
         this.start = new Util.Point();
         this.filled = false;
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
         this.start = new Util.Point(mp.x, mp.y);
@@ -441,6 +454,7 @@ export class Ellipse extends Tool {
         this.start = new Util.Point();
         this.filled = false;
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
         this.start = new Util.Point(mp.x, mp.y);
@@ -498,6 +512,7 @@ export class Line extends Tool {
         this.drawing = false;
         this.start = new Util.Point();
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
         this.start = new Util.Point(mp.x, mp.y);
@@ -534,6 +549,7 @@ export class Arrow extends Tool {
         this.drawing = false;
         this.start = new Util.Point();
     }
+    onDeSelected() { this.onClickUp(); }
     onClickDown() {
         let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
         this.start = new Util.Point(mp.x, mp.y);

@@ -166,11 +166,6 @@ app.registerShortcut(67, false, false, false, () => { toolbox.selectTool(toolbox
 app.registerShortcut(67, false, true, false, () => { toolbox.selectTool(toolbox.fillellipse); });
 app.registerShortcut(65, false, false, false, () => { toolbox.selectTool(toolbox.arrow); });
 
-// app.registerShortcut(37, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(10 / viewport.scale, 0); });
-// app.registerShortcut(38, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, 10 / viewport.scale); });
-// app.registerShortcut(39, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(-10 / viewport.scale, 0); });
-// app.registerShortcut(40, false, false, false, () => { if(toolbox.selected == toolbox.select) toolbox.select.moveSelection(0, -10 / viewport.scale); });
-
 ActionStack.onundo.add(() => {
     toolbox.select.clearSelection();
 });

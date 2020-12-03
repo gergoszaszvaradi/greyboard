@@ -14,11 +14,29 @@ export class Mouse {
 }
 
 export class Keyboard {
-    key : number = 0;
-    ctrl : boolean = false;
-    shift : boolean = false;
-    alt : boolean = false;
-    pressed : boolean = false;
+    private keys : Map<number, boolean>;
+    private pressedKeyCount : number;
+
+    constructor(){
+        this.keys = new Map();
+        this.pressedKeyCount = 0;
+    }
+
+    public setKeyState(key : number, state : boolean) {
+        this.keys.set(key, state);
+    }
+
+    public isPressed(key : number) : boolean {
+        return this.keys.get(key) == true;
+    }
+
+    public isAnyPressed() : boolean {
+        for(let v of this.keys){
+            if(v[1] == true)
+                return true;
+        }
+        return false;
+    }
 }
 
 export interface Shortcut{
@@ -69,11 +87,7 @@ export class Application {
             this.onresize.invoke(this.width, this.height);
         });
         window.addEventListener("keydown", (e) => {
-            this.keyboard.key = e.keyCode;
-            this.keyboard.pressed = true;
-            this.keyboard.ctrl = e.ctrlKey;
-            this.keyboard.shift = e.shiftKey;
-            this.keyboard.alt = e.altKey;
+            this.keyboard.setKeyState(e.keyCode, true);
             this.onkeydown.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });
         window.addEventListener("keyup", (e) => {
@@ -82,7 +96,7 @@ export class Application {
                     if(e.ctrlKey == shortcut.ctrl && e.shiftKey == shortcut.shift && e.altKey == shortcut.alt && e.keyCode == shortcut.key)
                         shortcut.callback();
                 
-            this.keyboard = new Keyboard();
+            this.keyboard.setKeyState(e.keyCode, false);
             this.onkeyup.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });
         window.addEventListener("copy", (e) => {
