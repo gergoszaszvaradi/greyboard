@@ -37,7 +37,6 @@ export class Application {
     mouse = new Mouse();
     keyboard = new Keyboard();
     shortcuts : Array<Shortcut> = [];
-    focused : boolean = true;
 
     onresize = new Delegate();
     onmousedown = new Delegate();
@@ -51,6 +50,7 @@ export class Application {
     onpaste = new Delegate();
 
     onupdate = new Delegate();
+    onfocuschanged = new Delegate();
     lastUpdateTime : number;
 
     ui = new UI();
@@ -92,10 +92,10 @@ export class Application {
             this.onpaste.invoke((e as ClipboardEvent).clipboardData);
         });
         window.addEventListener("focus", (e) => {
-            this.focused = true;
+            this.onfocuschanged.invoke(true);
         });
         window.addEventListener("blur", (e) => {
-            this.focused = false;
+            this.onfocuschanged.invoke(false);
         });
 
         this.graphics.canvas.addEventListener("mousedown", (e) => {

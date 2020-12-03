@@ -48,6 +48,9 @@ app.post("/load", (req : express.Request, res : express.Response) => {
 app.get("/b/:id", (req : express.Request, res : express.Response) => {
     if(greyboard.boardExists(req.params.id)){
         res.render("board", {board: { id: req.params.id, name: "New Board"} });
+    }else{
+        let publicBoards = greyboard.getPublicBoards();
+        res.render("board404", {publicBoards});
     }
     res.end();
 });

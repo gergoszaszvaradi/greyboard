@@ -29,7 +29,6 @@ export class Application {
         this.mouse = new Mouse();
         this.keyboard = new Keyboard();
         this.shortcuts = [];
-        this.focused = true;
         this.onresize = new Delegate();
         this.onmousedown = new Delegate();
         this.onmousemove = new Delegate();
@@ -40,6 +39,7 @@ export class Application {
         this.oncopy = new Delegate();
         this.onpaste = new Delegate();
         this.onupdate = new Delegate();
+        this.onfocuschanged = new Delegate();
         this.ui = new UI();
         let canvas = document.getElementById("canvas");
         this.graphics = new Graphics(canvas);
@@ -72,10 +72,10 @@ export class Application {
             this.onpaste.invoke(e.clipboardData);
         });
         window.addEventListener("focus", (e) => {
-            this.focused = true;
+            this.onfocuschanged.invoke(true);
         });
         window.addEventListener("blur", (e) => {
-            this.focused = false;
+            this.onfocuschanged.invoke(false);
         });
         this.graphics.canvas.addEventListener("mousedown", (e) => {
             this.mouse.dx = e.clientX;

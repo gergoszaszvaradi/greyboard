@@ -29,6 +29,9 @@ app.onmouseup.add(() => {
 app.onmousewheel.add((dx, dy) => {
     viewport.zoom(app.mouse.x, app.mouse.y, dy * 0.03);
 });
+app.onfocuschanged.add((state) => {
+    socket.send("client:afk", !state);
+});
 app.onupdate.add((ts) => {
     app.graphics.clear("#222222");
     app.graphics.setView(viewport.position, viewport.scale);

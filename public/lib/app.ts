@@ -37,9 +37,9 @@ app.onmouseup.add(() => {
 app.onmousewheel.add((dx : number, dy : number) => {
     viewport.zoom(app.mouse.x, app.mouse.y, dy * 0.03);
 });
-// app.onmouseleave.add(() => {
-//     // toolbox.selected.onClickUp();
-// });
+app.onfocuschanged.add((state : boolean) => {
+    socket.send("client:afk", !state);
+});
 
 app.onupdate.add((ts : number) => {
     app.graphics.clear("#222222");

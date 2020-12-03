@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Greyboard | 404</title>
+
+        <link rel="stylesheet" href="/css/util.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <link rel="stylesheet" href="//cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="banner">
+                <h1 class="code404">Greyboard</h1>
+                <p class="code404-desc">Oops, this board doen't exist!</p>
+                <a href="/new" class="button primary" action="new_board">Start with a fresh board</a>
+            </div>
+            <div class="public-boards">
+                <h2>Public boards</h2>
+                <div class="board-grid">
+                    <% if(publicBoards.length > 0) { for(var i=0; i < publicBoards.length; i++) {%>
+                        <a href="/b/<%= publicBoards[i].id %>" class="board">
+                            <div class="board-thumbnail">
+                                <i class="mdi mdi-bulletin-board"></i>
+                            </div>
+                            <div class="board-name"><%= publicBoards[i].name %></div>
+                        </a>
+                    <% } } else { %>
+                        <div class="board-grid-empty">There are no public boards at this moment...</div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -47,6 +47,10 @@ app.get("/b/:id", (req, res) => {
     if (greyboard.boardExists(req.params.id)) {
         res.render("board", { board: { id: req.params.id, name: "New Board" } });
     }
+    else {
+        let publicBoards = greyboard.getPublicBoards();
+        res.render("board404", { publicBoards });
+    }
     res.end();
 });
 app.get("/b/:id/save", (req, res) => {
