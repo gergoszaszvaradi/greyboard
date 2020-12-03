@@ -21,11 +21,11 @@ export class Toolbox {
         this.selected.onDeSelected();
         this.selected = tool;
         this.selected.onSelected();
-        app.ui.setActive("*[action^=tool]", `*[action=tool-${tool.name.toLowerCase()}]`);
+        app.ui.setToolActive(tool.name.toLowerCase());
     }
     selectColor(color) {
         this.color = color;
-        app.ui.setActive("*[action=set-color]", `*[color="${color}"]`);
+        app.ui.setColorActive(color);
     }
 }
 export class Tool {

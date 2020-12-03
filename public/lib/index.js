@@ -5,6 +5,9 @@ $(document).ready(() => {
         let file = $(e.currentTarget)[0].files[0];
         let form = new FormData();
         form.append("file", file);
+        $(".loading").css("display", "flex").animate({
+            opacity: 1
+        }, 500);
 
         $.ajax({
             type: "POST",

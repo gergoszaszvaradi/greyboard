@@ -175,6 +175,12 @@ export class Board {
         rr.h -= rr.y;
         return rr;
     }
+
+    setName(name : string) {
+        this.name = name;
+        document.title = `Greyboard | ${name}`;
+        app.ui.setText("#board-static-name", name);
+    }
 }
 
 export class BoardItem {
@@ -237,7 +243,7 @@ export class BoardPath extends BoardItem {
             points.push(this.points[i]);
         }
         points.push(this.points[0]);
-        console.log("Compression rate: " + (100 - (points.length * 100) / this.points.length) + "% (" + points.length + "/" + this.points.length + ")");
+        // console.log("Compression rate: " + (100 - (points.length * 100) / this.points.length) + "% (" + points.length + "/" + this.points.length + ")");
         this.points = points;
     }
 

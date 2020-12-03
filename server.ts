@@ -23,12 +23,14 @@ app.get("/", (req : express.Request, res : express.Response) => {
     let publicBoards = greyboard.getPublicBoards();
     res.render("index", {publicBoards});
 });
+
 app.get("/new", (req : express.Request, res : express.Response) => {
-    let id = greyboard.createTemporaryBoard();
+    let id = greyboard.createBoard();
     res.statusCode = 307;
     res.redirect(`/b/${id}`);
     res.end();
 });
+
 app.post("/load", (req : express.Request, res : express.Response) => {
     console.log("REQUEST: " + req.files);
     // @ts-ignore
@@ -42,12 +44,14 @@ app.post("/load", (req : express.Request, res : express.Response) => {
         res.end();
     });
 });
+
 app.get("/b/:id", (req : express.Request, res : express.Response) => {
     if(greyboard.boardExists(req.params.id)){
         res.render("board", {board: { id: req.params.id, name: "New Board"} });
     }
     res.end();
 });
+
 app.get("/b/:id/save", (req : express.Request, res : express.Response) => {
     if(greyboard.boardExists(req.params.id)){
         res.setHeader('Content-disposition', `attachment; filename=board_${req.params.id}.gb`);

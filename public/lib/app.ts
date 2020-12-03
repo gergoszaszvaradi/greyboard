@@ -87,9 +87,9 @@ app.ui.onaction.add((action : string, e : Element) => {
             socket.send("board:visibility", !board.public);
             board.public = !board.public;
             if(board.public)
-                $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+                app.ui.setToolbarButtonIcon("visibility", "mdi-lock-open-variant");
             else
-                $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
+                app.ui.setToolbarButtonIcon("visibility", "mdi-lock");
             break;
         case "clear":
             board.items = {};
@@ -135,7 +135,7 @@ app.ui.onaction.add((action : string, e : Element) => {
             viewport.zoom(app.width / 2, app.height / 2, 0.5);
             break;
         case "set-color":
-            let color = $(e).attr("color");
+            let color = $(e).data("color");
             if(color)
                 toolbox.selectColor(color);
             break;

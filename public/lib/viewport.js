@@ -18,7 +18,7 @@ export default class Viewport {
         this.pan(-cx, -cy);
         this.scale -= d;
         this.pan(cx, cy);
-        app.ui.setText("#zoomlevel", `${Math.floor(this.scale * 100)}%`);
+        app.ui.setZoomLevelPercentage(this.scale);
     }
     screenToViewport(x, y) {
         return new Util.Point(-this.position.x + x / this.scale, -this.position.y + y / this.scale);

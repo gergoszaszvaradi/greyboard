@@ -38,44 +38,26 @@ export class Socket {
             this.clientCoords[this.cid] = new ClientCoord(app.mouse.x, app.mouse.y);
             this.socket.on("room:state", (data) => {
                 this.clients = data.clients;
-                let users = document.querySelector("#users");
-                if (users) {
-                    let abr = data.clients[this.cid].name.replace(/[^A-Z]/g, "");
-                    users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${this.cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.clients[this.cid].name}</div></div>`;
-                    for (let cid in data.clients) {
-                        if (cid != this.cid) {
-                            abr = data.clients[cid].name.replace(/[^A-Z]/g, "");
-                            users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.clients[cid].name}</div></div>`;
-                        }
-                    }
-                }
-                board.name = data;
-                app.ui.setText("#board-static-name", data.name);
+                app.ui.addUserPresence(data.clients[this.cid]);
+                for (let cid in data.clients)
+                    if (cid != this.cid)
+                        app.ui.addUserPresence(data.clients[cid]);
+                board.setName(data.name);
                 board.public = data.public;
                 if (data.public)
-                    $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+                    app.ui.setToolbarButtonIcon("visibility", "mdi-lock-open-variant");
                 else
-                    $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
+                    app.ui.setToolbarButtonIcon("visibility", "mdi-lock");
                 board.addFromObjects(Object.values(data.items));
             });
             this.socket.on("client:state", (data) => {
-                var _a, _b;
-                let users = document.querySelector("#users");
                 for (let c in data) {
-                    if (!(c in this.clientCoords)) {
+                    if (!(c in this.clientCoords))
                         this.clientCoords[c] = new ClientCoord(data[c].x, data[c].y);
-                    }
                     this.clientCoords[c].set(data[c].x, data[c].y);
-                    if (c in this.clients) {
-                        if (this.clients[c].afk != data[c].afk) {
-                            if (users) {
-                                if (data[c].afk)
-                                    (_a = users.querySelector(`*[data-user="${c}"]`)) === null || _a === void 0 ? void 0 : _a.classList.add("afk");
-                                else
-                                    (_b = users.querySelector(`*[data-user="${c}"]`)) === null || _b === void 0 ? void 0 : _b.classList.remove("afk");
-                            }
-                        }
-                    }
+                    if (c in this.clients)
+                        if (this.clients[c].afk != data[c].afk)
+                            app.ui.setUserPresenceAFKState(c, data[c].afk);
                 }
                 this.clients = data;
                 this.lastHeathBeatTime = (new Date()).getTime();
@@ -84,21 +66,15 @@ export class Socket {
                 this.clients[data.cid] = data;
                 this.clientCoords[data.cid] = new ClientCoord(this.clients[data.cid].x, this.clients[data.cid].y);
                 let abr = data.name.replace(/[^A-Z]/g, "");
-                let users = document.querySelector("#users");
-                if (users)
-                    users.innerHTML += `<div class="toolbar-button" action="pan-to-user" data-user="${data.cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${data.name}</div></div>`;
+                app.ui.addUserPresence(data);
             });
             this.socket.on("client:disconnect", (data) => {
-                var _a;
-                let users = document.querySelector("#users");
-                if (users)
-                    (_a = users.querySelector(`*[data-user="${data}"]`)) === null || _a === void 0 ? void 0 : _a.remove();
+                app.ui.removeUserPresence(data);
                 delete this.clients[data];
                 delete this.clientCoords[data];
             });
             this.socket.on("board:name", (data) => {
-                board.name = data;
-                app.ui.setText("#board-static-name", data);
+                board.setName(data);
             });
             this.socket.on("board:add", (data) => {
                 board.addFromObjects(data);
@@ -117,12 +93,12 @@ export class Socket {
             this.socket.on("board:clear", (data) => {
                 board.clear();
             });
-            this.socket.on("board:v", (data) => {
+            this.socket.on("board:visibility", (data) => {
                 board.public = data;
                 if (data)
-                    $("*[action=visibility] i").removeClass("mdi-lock-open").addClass("mdi-lock");
+                    app.ui.setToolbarButtonIcon("visibility", "mdi-lock-open-variant");
                 else
-                    $("*[action=visibility] i").removeClass("mdi-lock").addClass("mdi-lock-open");
+                    app.ui.setToolbarButtonIcon("visibility", "mdi-lock");
             });
             this.update();
         });
@@ -136,8 +112,7 @@ export class Socket {
             cid: this.cid,
             bid: this.bid,
             x: mp.x,
-            y: mp.y,
-            afk: !app.focused
+            y: mp.y
         });
         setTimeout(() => {
             this.update();

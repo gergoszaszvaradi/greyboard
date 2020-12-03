@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
     res.render("index", { publicBoards });
 });
 app.get("/new", (req, res) => {
-    let id = greyboard.createTemporaryBoard();
+    let id = greyboard.createBoard();
     res.statusCode = 307;
     res.redirect(`/b/${id}`);
     res.end();

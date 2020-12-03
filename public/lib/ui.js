@@ -1,71 +1,73 @@
 import Delegate from "./delegate.js";
-import { app, toolbox, socket, board } from "./app.js";
+import { socket, board } from "./app.js";
 export class UI {
     constructor() {
         this.onaction = new Delegate();
-        this.dragInfo = { e: null, dx: 0, dy: 0 };
-        $(document).ready(() => {
-            $(document).on("mousemove", (e) => {
-                if (this.dragInfo && this.dragInfo.e) {
-                    let x = e.clientX - this.dragInfo.dx;
-                    let y = e.clientY - this.dragInfo.dy;
-                    if (x > 20 && this.dragInfo.e.clientWidth + x < window.innerWidth - 20)
-                        this.dragInfo.e.style.left = `${x}px`;
-                    if (y > 20 && this.dragInfo.e.clientHeight + y < window.innerHeight - 20)
-                        this.dragInfo.e.style.top = `${y}px`;
-                }
-            });
-            $(document).on("mouseup", (e) => {
-                if (this.dragInfo) {
-                    this.dragInfo = { e: null, dx: 0, dy: 0 };
-                    app.setCursor("default");
-                }
-            });
+        this.hintRemoved = false;
+        jQuery(() => {
             $(document).on("click", (e) => {
                 if (e.target) {
-                    let action = $(e.target).attr("action");
-                    if (action) {
+                    let action = $(e.target).data("action");
+                    if (action)
                         this.onaction.invoke(action, e.target);
-                    }
                 }
             });
-            $("#board-static-name").on("click", (e) => {
-                $(e.currentTarget).hide();
-                let input = $("#board-name");
-                input.show();
-                input.focus();
-                input.select();
+            $(document).on("mousedown wheel", () => this.removeStartingHint());
+            $("#board-static-name").on("click", () => {
+                $("#board-static-name").hide();
+                $("#board-name").show().focus().select();
             });
-            $("#board-name").on("blur", (e) => {
-                $(e.currentTarget).hide();
-                let text = $("#board-static-name");
-                text.text($(e.currentTarget).val());
-                text.show();
-                board.name = text.text();
-                document.title = `Greyboard | ${board.name}`;
-                socket.send("board:name", board.name);
-            });
-            $("#board-name").on("keydown", (e) => {
-                if (e.keyCode != 13)
+            $("#board-name").on("blur keydown", (e) => {
+                if (e.type == "keydown" && e.key != "Enter")
                     return;
-                $(e.currentTarget).hide();
-                let text = $("#board-static-name");
-                text.text($(e.currentTarget).val());
-                text.show();
-                board.name = text.text();
-                document.title = `Greyboard | ${board.name}`;
+                board.setName($("#board-name").val());
+                $("#board-static-name").show();
+                $("#board-name").hide();
                 socket.send("board:name", board.name);
-            });
-            $("#stroke-size").on("change", (e) => {
-                toolbox.weight = $(e.currentTarget).val();
             });
         });
+    }
+    addUserPresence(client) {
+        let abr = client.name.replace(/[^A-Z]/g, "");
+        $("#users").append(`<div class="toolbar-button" data-action="pan-to-user" data-user="${client.cid}"><div class="toolbar-user">${abr}</div><div class="toolbar-button-tooltip bottom">${client.name}</div></div>`);
+    }
+    removeUserPresence(cid) {
+        $(`.toolbar-button[data-user="${cid}"]`).remove();
+    }
+    setUserPresenceAFKState(cid, state) {
+        if (state)
+            $(`.toolbar-button[data-user="${cid}"]`).addClass("afk");
+        else
+            $(`.toolbar-button[data-user="${cid}"]`).removeClass("afk");
+    }
+    setToolbarButtonIcon(action, icon) {
+        $(`.toolbar-button[data-action="${action}"] > i`).attr("class", `mdi ${icon}`);
+    }
+    setToolActive(tool) {
+        $(".toolbar-button[data-action^=tool-]").removeClass("active");
+        $(`.toolbar-button[data-action="tool-${tool}"]`).addClass("active");
+    }
+    setColorActive(color) {
+        $(`.toolbar-button[data-action="set-color"]`).removeClass("active");
+        $(`.toolbar-button[data-color="${color}"]`).addClass("active");
+    }
+    setZoomLevelPercentage(value) {
+        $("#zoomlevel").text(`${Math.floor(value * 100)}%`);
     }
     setText(selector, text) {
         $(selector).text(text);
     }
-    setActive(all, e) {
-        $(all).removeClass("active");
-        $(e).addClass("active");
+    setTemporaryText(selector, text, time = 1000) {
+        let original = $(selector).text();
+        $(selector).text(text);
+        setTimeout(() => {
+            $(selector).text(original);
+        }, time);
+    }
+    removeStartingHint() {
+        if (this.hintRemoved == false) {
+            $(".start-hint").fadeOut();
+            this.hintRemoved = true;
+        }
     }
 }
