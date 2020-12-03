@@ -110,6 +110,7 @@ label{
 }
 .board .board-name{
     padding: 10px 20px;
+    color: white;
 }
 
 .board-grid-empty {

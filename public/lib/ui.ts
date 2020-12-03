@@ -6,6 +6,7 @@ export class UI {
     onaction : Delegate = new Delegate();
 
     hintRemoved : boolean = false;
+    inputFocused : boolean = false;
 
     constructor() {
         jQuery(() => {
@@ -18,6 +19,11 @@ export class UI {
             });
 
             $(document).on("mousedown wheel", () => this.removeStartingHint());
+            $("input").on("focus", () => this.inputFocused = true);
+            $("input").on("blur keydown", e => {
+                if(e.type == "keydown" && e.key != "Enter") return;
+                this.inputFocused = false
+            });
 
             $("#board-static-name").on("click", () => {
                 $("#board-static-name").hide();
@@ -30,7 +36,7 @@ export class UI {
                 $("#board-static-name").show();
                 $("#board-name").hide();
                 socket.send("board:name", board.name);
-            })
+            });
         });
     }
 

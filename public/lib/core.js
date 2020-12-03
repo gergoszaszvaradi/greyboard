@@ -58,10 +58,10 @@ export class Application {
             this.onkeydown.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });
         window.addEventListener("keyup", (e) => {
-            console.log(e);
-            for (let shortcut of this.shortcuts)
-                if (e.ctrlKey == shortcut.ctrl && e.shiftKey == shortcut.shift && e.altKey == shortcut.alt && e.keyCode == shortcut.key)
-                    shortcut.callback();
+            if (!this.ui.inputFocused)
+                for (let shortcut of this.shortcuts)
+                    if (e.ctrlKey == shortcut.ctrl && e.shiftKey == shortcut.shift && e.altKey == shortcut.alt && e.keyCode == shortcut.key)
+                        shortcut.callback();
             this.keyboard = new Keyboard();
             this.onkeyup.invoke(e.keyCode, e.ctrlKey, e.shiftKey, e.altKey);
         });

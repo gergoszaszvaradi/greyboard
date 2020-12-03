@@ -4,6 +4,7 @@ export class UI {
     constructor() {
         this.onaction = new Delegate();
         this.hintRemoved = false;
+        this.inputFocused = false;
         jQuery(() => {
             $(document).on("click", (e) => {
                 if (e.target) {
@@ -13,6 +14,12 @@ export class UI {
                 }
             });
             $(document).on("mousedown wheel", () => this.removeStartingHint());
+            $("input").on("focus", () => this.inputFocused = true);
+            $("input").on("blur keydown", e => {
+                if (e.type == "keydown" && e.key != "Enter")
+                    return;
+                this.inputFocused = false;
+            });
             $("#board-static-name").on("click", () => {
                 $("#board-static-name").hide();
                 $("#board-name").show().focus().select();
