@@ -1,7 +1,7 @@
 import { Application } from "./core.js"
 import Viewport from "./viewport.js";
 import { Board } from "./board.js";
-import { Toolbox } from "./tool.js";
+import { SelectTool, Toolbox } from "./tool.js";
 import { Socket } from "./socket.js";
 import * as Util from "./util.js";
 import { ActionStack } from "./action.js"
@@ -69,13 +69,18 @@ app.onupdate.add((ts : number) => {
 });
 
 app.oncopy.add((data) => {
-    toolbox.select.copySelection(data);
+    (toolbox.getTool("select") as SelectTool).copySelection(data);
 });
 app.onpaste.add((data) => {
     board.addFromClipboard(data);
 }); 
 
 app.ui.onaction.add((action : string, e : Element) => {
+    if(action.startsWith("tool-")){
+        toolbox.selectTool(action.substring(5, action.length));
+        return;
+    }
+
     switch(action){
         case "save":
             window.open(`/b/${socket.bid}/save`);
@@ -101,33 +106,6 @@ app.ui.onaction.add((action : string, e : Element) => {
         case "redo":
             ActionStack.redo();
             break;
-        case "tool-select":
-            toolbox.selectTool(toolbox.select);
-            break;
-        case "tool-pencil":
-            toolbox.selectTool(toolbox.pencil);
-            break;
-        case "tool-eraser":
-            toolbox.selectTool(toolbox.eraser);
-            break;
-        case "tool-rectangle":
-            toolbox.selectTool(toolbox.rectange);
-            break;
-        case "tool-fillrectangle":
-            toolbox.selectTool(toolbox.fillrectangle);
-            break;
-        case "tool-ellipse":
-            toolbox.selectTool(toolbox.ellipse);
-            break;
-        case "tool-fillellipse":
-            toolbox.selectTool(toolbox.fillellipse);
-            break;
-        case "tool-line":
-            toolbox.selectTool(toolbox.line);
-            break;
-        case "tool-arrow":
-            toolbox.selectTool(toolbox.arrow);
-            break;
         case "zoomin":
             viewport.zoom(app.width / 2, app.height / 2, -0.5);
             break;
@@ -145,30 +123,26 @@ app.ui.onaction.add((action : string, e : Element) => {
                 viewport.panTo(socket.clientCoords[cid].x, socket.clientCoords[cid].y);
             }
             break;
-        // case "settings":
-        //     app.ui.hideAllPanels();
-        //     app.ui.showPanel("#settings-panel");
-        //     break;
     }
 });
 
 app.registerShortcut(90, true, false, false, () => { ActionStack.undo(); });
 app.registerShortcut(90, true, true, false, () => { ActionStack.redo(); });
-app.registerShortcut(46, false, false, false, () => { toolbox.select.deleteSelection(); });
+app.registerShortcut(46, false, false, false, () => { (toolbox.getTool("select") as SelectTool).deleteSelection(); });
 
-app.registerShortcut(83, false, false, false, () => { toolbox.selectTool(toolbox.select); });
-app.registerShortcut(66, false, false, false, () => { toolbox.selectTool(toolbox.pencil); });
-app.registerShortcut(69, false, false, false, () => { toolbox.selectTool(toolbox.eraser); });
-app.registerShortcut(76, false, false, false, () => { toolbox.selectTool(toolbox.line); });
-app.registerShortcut(82, false, false, false, () => { toolbox.selectTool(toolbox.rectange); });
-app.registerShortcut(82, false, true, false, () => { toolbox.selectTool(toolbox.fillrectangle); });
-app.registerShortcut(67, false, false, false, () => { toolbox.selectTool(toolbox.ellipse); });
-app.registerShortcut(67, false, true, false, () => { toolbox.selectTool(toolbox.fillellipse); });
-app.registerShortcut(65, false, false, false, () => { toolbox.selectTool(toolbox.arrow); });
+app.registerShortcut(83, false, false, false, () => { toolbox.selectTool("select"); });
+app.registerShortcut(66, false, false, false, () => { toolbox.selectTool("pencil"); });
+app.registerShortcut(69, false, false, false, () => { toolbox.selectTool("eraser"); });
+app.registerShortcut(76, false, false, false, () => { toolbox.selectTool("line"); });
+app.registerShortcut(82, false, false, false, () => { toolbox.selectTool("rectange"); });
+app.registerShortcut(82, false, true, false, () => { toolbox.selectTool("fillrectangle"); });
+app.registerShortcut(67, false, false, false, () => { toolbox.selectTool("ellipse"); });
+app.registerShortcut(67, false, true, false, () => { toolbox.selectTool("fillellipse"); });
+app.registerShortcut(65, false, false, false, () => { toolbox.selectTool("arrow"); });
 
 ActionStack.onundo.add(() => {
-    toolbox.select.clearSelection();
+    (toolbox.getTool("select") as SelectTool).clearSelection();
 });
 ActionStack.onredo.add(() => {
-    toolbox.select.clearSelection();
+    (toolbox.getTool("select") as SelectTool).clearSelection();
 });

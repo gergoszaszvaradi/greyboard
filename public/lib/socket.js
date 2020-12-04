@@ -81,11 +81,11 @@ export class Socket {
             });
             this.socket.on("board:move", (data) => {
                 board.move(data.ids, data.dx, data.dy);
-                toolbox.select.clearSelection();
+                toolbox.getTool("select").clearSelection();
             });
             this.socket.on("board:scale", (data) => {
                 board.scale(data.ids, data.dx, data.dy);
-                toolbox.select.clearSelection();
+                toolbox.getTool("select").clearSelection();
             });
             this.socket.on("board:remove", (data) => {
                 board.remove(data);

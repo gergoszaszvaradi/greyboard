@@ -1,5 +1,5 @@
 import Delegate from "./delegate.js";
-import { socket, board } from "./app.js";
+import { toolbox, socket, board } from "./app.js";
 export class UI {
     constructor() {
         this.onaction = new Delegate();
@@ -15,10 +15,11 @@ export class UI {
             });
             $(document).on("mousedown wheel", () => this.removeStartingHint());
             $("input").on("focus", () => this.inputFocused = true);
-            $("input").on("blur keydown", e => {
-                if (e.type == "keydown" && e.key != "Enter")
-                    return;
-                this.inputFocused = false;
+            $("textarea").on("focus", () => this.inputFocused = true);
+            $("input").on("blur", e => this.inputFocused = false);
+            $("textarea").on("blur", e => this.inputFocused = false);
+            $("#stroke-size").on("change", (e) => {
+                toolbox.weight = $("#stroke-size").val();
             });
             $("#board-static-name").on("click", () => {
                 $("#board-static-name").hide();

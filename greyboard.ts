@@ -282,6 +282,8 @@ export class GreyBoard {
                 size += 3 + 1 + 8 + 8; // color + weight + start + end
             }else if(item.type == 5){
                 size += Buffer.byteLength(item.src) + 1;
+            }else if(item.type == 6){
+                size += Buffer.byteLength(item.text) + 1 + 3; // text + color
             }
             count++;
         }
@@ -338,6 +340,13 @@ export class GreyBoard {
                 buffer.writeFloat(item.end.y);
             }else if(item.type == 5){
                 buffer.writeString(item.src);
+            }else if(item.type == 6) {
+                let color = hexToRgb(item.color);
+                if(color == null) continue;
+                buffer.writeString(item.text);
+                buffer.writeUChar(color.r);
+                buffer.writeUChar(color.g);
+                buffer.writeUChar(color.b);
             }
         }
 
@@ -449,6 +458,22 @@ export class GreyBoard {
                             src: ""
                         };
                         item.src = gbBuffer.readString();
+                    }else if(type == 6) {
+                        item = {
+                            id: this.generateID(),
+                            cid: "unknown",
+                            type,
+                            rect: {
+                                x: gbBuffer.readFloat(),
+                                y: gbBuffer.readFloat(),
+                                w: gbBuffer.readFloat(),
+                                h: gbBuffer.readFloat()
+                            },
+                            text: "",
+                            color: ""
+                        };
+                        item.text = gbBuffer.readString();
+                        item.color = rgbToHex(gbBuffer.readUChar(), gbBuffer.readUChar(), gbBuffer.readUChar());
                     }
                     if(item != null)
                         board.items[item.id] = item;

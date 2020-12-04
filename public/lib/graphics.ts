@@ -164,6 +164,9 @@ export default class Graphics {
     text(x : number, y : number, text : string){
         this.ctx.fillText(text, x, y);
     }
+    textfield(x : number, y: number, w : number, text : string) {
+        this.ctx.fillText(text, x, y, w);
+    }
 
 
     getImageData(){

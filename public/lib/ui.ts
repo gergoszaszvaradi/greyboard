@@ -20,9 +20,12 @@ export class UI {
 
             $(document).on("mousedown wheel", () => this.removeStartingHint());
             $("input").on("focus", () => this.inputFocused = true);
-            $("input").on("blur keydown", e => {
-                if(e.type == "keydown" && e.key != "Enter") return;
-                this.inputFocused = false
+            $("textarea").on("focus", () => this.inputFocused = true);
+            $("input").on("blur", e => this.inputFocused = false);
+            $("textarea").on("blur", e => this.inputFocused = false);
+
+            $("#stroke-size").on("change", (e) => {
+                toolbox.weight = $("#stroke-size").val() as number;
             });
 
             $("#board-static-name").on("click", () => {

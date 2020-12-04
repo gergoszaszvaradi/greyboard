@@ -23,6 +23,9 @@ export default class Viewport {
     screenToViewport(x, y) {
         return new Util.Point(-this.position.x + x / this.scale, -this.position.y + y / this.scale);
     }
+    viewportToScreen(x, y) {
+        return new Util.Point((this.position.x + x) * this.scale, (this.position.y + y) * this.scale);
+    }
     isRectInView(rect) {
         let topleft = this.screenToViewport(0, 0);
         let bottomRight = this.screenToViewport(window.innerWidth, window.innerHeight);

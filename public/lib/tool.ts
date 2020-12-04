@@ -1,34 +1,47 @@
 import { app, viewport, board, socket, toolbox } from "./app.js"
 import * as Util from "./util.js"
-import { BoardPath, BoardRectangle, BoardEllipse, BoardArrow, BoardItem } from "./board.js";
+import { BoardPath, BoardRectangle, BoardEllipse, BoardArrow, BoardItem, BoardText, BoardItemType } from "./board.js";
 import { ActionStack } from "./action.js";
 
 export class Toolbox {
-    select = new Select();
-    pencil = new Pencil();
-    eraser = new Eraser();
-    rectange = new Rectangle();
-    fillrectangle = new FillRectangle();
-    ellipse = new Ellipse();
-    fillellipse = new FillEllipse();
-    line = new Line();
-    arrow = new Arrow();
-
+    tools : Array<Tool>;
     selected : Tool;
     color : string = "#fafafa";
     weight : number = 3;
 
-
     constructor(){
-        this.selected = this.pencil;
+        this.tools = [
+            new PencilTool(),
+            new SelectTool(),
+            new EraserTool(),
+            new RectangleTool(),
+            new FillRectangleTool(),
+            new EllipseTool(),
+            new FillEllipseTool(),
+            new LineTool(),
+            new ArrowTool(),
+            new TextTool()
+        ];
+        this.selected = this.tools[0] as Tool;
+    }
+    
+    getTool(name : string) : Tool | null {
+        for(let t of this.tools){
+            if(t.name.toLowerCase() == name.toLowerCase())
+                return t;
+        }
+        return null;
     }
 
-    selectTool(tool : Tool){
-        this.selected.onDeSelected();
-        this.selected = tool;
-        this.selected.onSelected();
+    selectTool(name : string){
+        let tool = this.getTool(name);
+        if(tool){
+            this.selected.onDeSelected();
+            this.selected = tool;
+            this.selected.onSelected();
 
-        app.ui.setToolActive(tool.name.toLowerCase());
+            app.ui.setToolActive(this.selected.name.toLowerCase());
+        }
     }
 
     selectColor(color : string){
@@ -61,7 +74,7 @@ enum SelectToolMode {
     Move,
     Scale
 }
-export class Select extends Tool {
+export class SelectTool extends Tool {
     wasDragged : boolean = false;
     rect = new Util.ERect();
     bb = new Util.Rect(Infinity, Infinity, -Infinity, -Infinity);
@@ -299,7 +312,7 @@ export class Select extends Tool {
     }
 }
 
-export class Pencil extends Tool {
+export class PencilTool extends Tool {
     buffer : Array<Util.Point> = [];
 
     constructor(){ super("Pencil"); }
@@ -341,7 +354,7 @@ export class Pencil extends Tool {
     }
 }
 
-export class Eraser extends Tool {
+export class EraserTool extends Tool {
     trail : Array<Util.Point> = [];
 
     constructor(){ super("Eraser"); }
@@ -399,7 +412,7 @@ export class Eraser extends Tool {
     }
 }
 
-export class Rectangle extends Tool {
+export class RectangleTool extends Tool {
     drawing = false;
     start = new Util.Point();
     filled = false;
@@ -454,7 +467,7 @@ export class Rectangle extends Tool {
         }
     }
 }
-export class FillRectangle extends Rectangle{
+export class FillRectangleTool extends RectangleTool{
     constructor(){
         super();
         this.name = "FillRectangle";
@@ -462,7 +475,7 @@ export class FillRectangle extends Rectangle{
     }
 }
 
-export class Ellipse extends Tool {
+export class EllipseTool extends Tool {
     drawing = false;
     start = new Util.Point();
     filled = false;
@@ -517,7 +530,7 @@ export class Ellipse extends Tool {
         }
     }
 }
-export class FillEllipse extends Ellipse{
+export class FillEllipseTool extends EllipseTool{
     constructor(){
         super();
         this.name = "FillEllipse";
@@ -525,7 +538,7 @@ export class FillEllipse extends Ellipse{
     }
 }
 
-export class Line extends Tool {
+export class LineTool extends Tool {
     drawing = false;
     start = new Util.Point();
 
@@ -568,7 +581,7 @@ export class Line extends Tool {
         app.graphics.line(this.start.x, this.start.y, mp.x, mp.y);
     }
 }
-export class Arrow extends Tool{
+export class ArrowTool extends Tool{
     drawing = false;
     start = new Util.Point();
 
@@ -611,5 +624,115 @@ export class Arrow extends Tool{
 
         app.graphics.stroke(toolbox.color, toolbox.weight);
         app.graphics.line(this.start.x, this.start.y, mp.x, mp.y);
+    }
+}
+
+export class TextTool extends Tool{
+    private textarea : JQuery<HTMLElement>;
+    private currentText : BoardText | null = null;
+    private editing : boolean = false;
+    private creatingNew : boolean = false;
+    private pos : Util.Point = new Util.Point();
+
+    constructor() {
+        super("Text");
+        this.textarea = $("#text-tool-textarea");
+
+        app.onkeydown.add((keyCode) => {
+            if(keyCode == 27)
+                this.endEditing();
+        });
+    }
+
+    endEditing(){
+        if(this.editing){
+            let text = this.textarea.val() as string;
+            if(text.trim() != ""){
+                if(this.creatingNew){
+                    let item = new BoardText(socket.cid, this.pos.x, this.pos.y, 0, 20, toolbox.color, "");
+                    item.setText(text);
+
+                    ActionStack.add((data) => {
+                        board.add([data]);
+                        socket.send("board:add", [data]);
+                    }, (data) => {
+                        board.remove([data.id]);
+                        socket.send("board:remove", [data.id]);
+                    }, item);
+                }else{
+                    if(this.currentText != null) {
+                        let item = new BoardText(socket.cid, this.currentText.rect.x, this.currentText.rect.y, this.currentText.rect.w, this.currentText.rect.h, this.currentText.color, this.currentText.text);
+                        item.setText(text);
+                        this.currentText.visible = true;
+                        ActionStack.add((data) => {
+                            board.remove([data.old.id]);
+                            board.add([data.new]);
+                            socket.send("board:remove", [data.old.id]);
+                            socket.send("board:add", [data.new]);
+                        }, (data) => {
+                            board.remove([data.new.id]);
+                            board.add([data.old]);
+                            socket.send("board:remove", [data.new.id]);
+                            socket.send("board:add", [data.old]);
+                        }, {old: this.currentText, new: item});
+
+                        this.currentText = null;
+                    }
+                }
+            }
+            this.textarea.hide();
+            this.editing = false;
+            this.creatingNew = false;
+        }
+    }
+
+    onDeSelected() {
+        this.endEditing();
+    }
+
+    onClickUp(){
+        this.endEditing();
+        this.editing = true;
+        this.creatingNew = true;
+
+        this.pos = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        board.each((item) => {
+            if(!viewport.isRectInView(item.rect) || item.type != BoardItemType.Text) return;
+            if(Util.isPointInRect(this.pos.x, this.pos.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
+                this.creatingNew = false;
+                this.currentText = item as BoardText;
+                
+                let ip = viewport.viewportToScreen(this.currentText.rect.x, this.currentText.rect.y);
+                let lineHeight = this.currentText.rect.h / this.currentText.text.split('\n').length;
+                this.textarea.val(this.currentText.text).css({
+                    left: ip.x + "px",
+                    top: ip.y + "px",
+                    fontSize: lineHeight * viewport.scale,
+                    color: this.currentText.color
+                }).show().select();
+
+                this.currentText.visible = false;
+            }
+        });
+
+        if(this.creatingNew){
+            this.textarea.val("").css({
+                left: app.mouse.x + "px",
+                top: app.mouse.y + "px",
+                fontSize: 20 * viewport.scale,
+                color: toolbox.color
+            }).show().select();
+        }
+    }
+
+    onDraw(){
+        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        board.each((item) => {
+            app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
+            if(!viewport.isRectInView(item.rect) || item.type != BoardItemType.Text) return;
+            if(Util.isPointInRect(mp.x, mp.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
+                app.graphics.rect(item.rect.x, item.rect.y, item.rect.w, item.rect.h);
+            }
+        });
     }
 }

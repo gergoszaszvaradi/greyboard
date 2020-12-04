@@ -146,6 +146,9 @@ export default class Graphics {
     text(x, y, text) {
         this.ctx.fillText(text, x, y);
     }
+    textfield(x, y, w, text) {
+        this.ctx.fillText(text, x, y, w);
+    }
     getImageData() {
         return this.canvas.toDataURL("application/octet-stream");
     }

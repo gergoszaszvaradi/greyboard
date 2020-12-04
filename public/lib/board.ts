@@ -2,6 +2,7 @@ import * as Util from "./util.js"
 import { viewport, app, socket, toolbox, board } from "./app.js";
 import { ActionStack } from "./action.js";
 import Delegate from "./delegate.js";
+import { SelectTool } from "./tool.js";
 
 export enum BoardItemType{
     None = 0,
@@ -9,7 +10,8 @@ export enum BoardItemType{
     Rectangle = 2,
     Ellipse = 3,
     Arrow = 4,
-    Image = 5
+    Image = 5,
+    Text = 6
 };
 
 export class Board {
@@ -51,6 +53,10 @@ export class Board {
                     img.rect.h = item.rect.h;
                 });
                 itemsToAdd.push(img);
+            }else if(item.type == BoardItemType.Text){
+                let text = new BoardText(item.cid, item.rect.x, item.rect.y, item.rect.w, item.rect.h, item.color, item.text);
+                text.id = item.id;
+                itemsToAdd.push(text);
             }
         }
         this.add(itemsToAdd);
@@ -63,8 +69,9 @@ export class Board {
         if(item.type.startsWith("text")){
             let items = JSON.parse(data.getData("text"));
             if(items){
-                toolbox.selectTool(toolbox.select);
-                toolbox.select.clearSelection();
+                let selectTool = toolbox.getTool("select") as SelectTool;
+                toolbox.selectTool("select");
+                selectTool.clearSelection();
                 let ids = [];
                 for(let i of items){
                     i.id = Util.generateID();
@@ -76,8 +83,8 @@ export class Board {
 
                 ActionStack.add((data) => {
                     this.addFromObjects(data.items);
-                    toolbox.select.selection = data.ids;
-                    toolbox.select.calculateBoundingBox();
+                    selectTool.selection = data.ids;
+                    selectTool.calculateBoundingBox();
                     socket.send("board:add", data.items);
                 }, (data) => {
                     this.remove(data.ids);
@@ -85,8 +92,8 @@ export class Board {
                 }, {items, ids});
 
                 board.addFromObjects(items);
-                toolbox.select.selection = ids;
-                toolbox.select.calculateBoundingBox();
+                selectTool.selection = ids;
+                selectTool.calculateBoundingBox();
             }
         }else if(item.type.startsWith("image")){
             let blob = item.getAsFile();
@@ -432,4 +439,57 @@ export class BoardArrow extends BoardItem {
         app.graphics.line(tx1, ty1, ex, ey);
         app.graphics.line(tx2, ty2, ex, ey);
     };
+}
+
+export class BoardText extends BoardItem {
+    text : string = "";
+    color : string = "#ffffff";
+    visible : boolean = true;
+
+    constructor(cid : string, x : number = 0, y : number = 0, w : number = 0, h : number = 0, color : string, text : string) {
+        super(cid, x, y, w, h);
+        this.color = color;
+        this.text = text;
+        this.type = BoardItemType.Text;
+    }
+
+    isInRect(rect : Util.Rect) : boolean {
+        return Util.rectIntersection(this.rect.x, this.rect.y, this.rect.w, this.rect.h, rect.x, rect.y, rect.w, rect.h);
+    }
+    isInLine(x1 : number, y1 : number, x2 : number, y2 : number) : boolean {
+        return Util.isLineInRect(x1, y1, x2, y2, this.rect.x, this.rect.y, this.rect.w, this.rect.h);
+    }
+
+    getTextWidth(text : string, lh : number) {
+        let lines = text.split('\n');
+        let mw = 0;
+        app.graphics.font("Arial", lh, "left", "top");
+        for(let line of lines) {
+            let w = app.graphics.ctx.measureText(line).width;
+            if(w > mw) mw = w;
+        }
+        return mw;
+    }
+
+    setText(text : string){
+        let lineHeight = this.rect.h / this.text.split('\n').length;
+        console.log(this.text.split('\n').length);
+        this.text = text;
+        this.rect.h = text.split('\n').length * lineHeight;
+        this.rect.w = this.getTextWidth(text, lineHeight);
+    }
+
+    draw() {
+        if(this.visible == false) return;
+        
+        let lines = this.text.split('\n');
+        let lineHeight = this.rect.h / lines.length;
+        app.graphics.fill(this.color);
+        app.graphics.font("Arial", lineHeight, "left", "top");
+        let h = 0;
+        for(let line of lines) {
+            app.graphics.textfield(this.rect.x, this.rect.y + h, this.rect.w, line);
+            h += lineHeight;
+        }
+    }
 }

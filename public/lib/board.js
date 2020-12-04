@@ -10,6 +10,7 @@ export var BoardItemType;
     BoardItemType[BoardItemType["Ellipse"] = 3] = "Ellipse";
     BoardItemType[BoardItemType["Arrow"] = 4] = "Arrow";
     BoardItemType[BoardItemType["Image"] = 5] = "Image";
+    BoardItemType[BoardItemType["Text"] = 6] = "Text";
 })(BoardItemType || (BoardItemType = {}));
 ;
 export class Board {
@@ -56,6 +57,11 @@ export class Board {
                 });
                 itemsToAdd.push(img);
             }
+            else if (item.type == BoardItemType.Text) {
+                let text = new BoardText(item.cid, item.rect.x, item.rect.y, item.rect.w, item.rect.h, item.color, item.text);
+                text.id = item.id;
+                itemsToAdd.push(text);
+            }
         }
         this.add(itemsToAdd);
     }
@@ -68,8 +74,9 @@ export class Board {
         if (item.type.startsWith("text")) {
             let items = JSON.parse(data.getData("text"));
             if (items) {
-                toolbox.selectTool(toolbox.select);
-                toolbox.select.clearSelection();
+                let selectTool = toolbox.getTool("select");
+                toolbox.selectTool("select");
+                selectTool.clearSelection();
                 let ids = [];
                 for (let i of items) {
                     i.id = Util.generateID();
@@ -80,16 +87,16 @@ export class Board {
                 navigator.clipboard.writeText(JSON.stringify(items));
                 ActionStack.add((data) => {
                     this.addFromObjects(data.items);
-                    toolbox.select.selection = data.ids;
-                    toolbox.select.calculateBoundingBox();
+                    selectTool.selection = data.ids;
+                    selectTool.calculateBoundingBox();
                     socket.send("board:add", data.items);
                 }, (data) => {
                     this.remove(data.ids);
                     socket.send("board:remove", data.ids);
                 }, { items, ids });
                 board.addFromObjects(items);
-                toolbox.select.selection = ids;
-                toolbox.select.calculateBoundingBox();
+                selectTool.selection = ids;
+                selectTool.calculateBoundingBox();
             }
         }
         else if (item.type.startsWith("image")) {
@@ -404,4 +411,52 @@ export class BoardArrow extends BoardItem {
         app.graphics.line(tx2, ty2, ex, ey);
     }
     ;
+}
+export class BoardText extends BoardItem {
+    constructor(cid, x = 0, y = 0, w = 0, h = 0, color, text) {
+        super(cid, x, y, w, h);
+        this.text = "";
+        this.color = "#ffffff";
+        this.visible = true;
+        this.color = color;
+        this.text = text;
+        this.type = BoardItemType.Text;
+    }
+    isInRect(rect) {
+        return Util.rectIntersection(this.rect.x, this.rect.y, this.rect.w, this.rect.h, rect.x, rect.y, rect.w, rect.h);
+    }
+    isInLine(x1, y1, x2, y2) {
+        return Util.isLineInRect(x1, y1, x2, y2, this.rect.x, this.rect.y, this.rect.w, this.rect.h);
+    }
+    getTextWidth(text, lh) {
+        let lines = text.split('\n');
+        let mw = 0;
+        app.graphics.font("Arial", lh, "left", "top");
+        for (let line of lines) {
+            let w = app.graphics.ctx.measureText(line).width;
+            if (w > mw)
+                mw = w;
+        }
+        return mw;
+    }
+    setText(text) {
+        let lineHeight = this.rect.h / this.text.split('\n').length;
+        console.log(this.text.split('\n').length);
+        this.text = text;
+        this.rect.h = text.split('\n').length * lineHeight;
+        this.rect.w = this.getTextWidth(text, lineHeight);
+    }
+    draw() {
+        if (this.visible == false)
+            return;
+        let lines = this.text.split('\n');
+        let lineHeight = this.rect.h / lines.length;
+        app.graphics.fill(this.color);
+        app.graphics.font("Arial", lineHeight, "left", "top");
+        let h = 0;
+        for (let line of lines) {
+            app.graphics.textfield(this.rect.x, this.rect.y + h, this.rect.w, line);
+            h += lineHeight;
+        }
+    }
 }

@@ -1,6 +1,7 @@
 import { app, board, viewport, toolbox } from "../lib/app.js"
 import socket_client from "socket.io-client"
 import * as Util from "../lib/util.js"
+import { SelectTool } from "./tool.js";
 
 export interface IClient {
     cid : string;
@@ -118,11 +119,11 @@ export class Socket {
             });
             this.socket.on("board:move", (data : any) => {
                 board.move(data.ids, data.dx, data.dy);
-                toolbox.select.clearSelection();
+                (toolbox.getTool("select") as SelectTool).clearSelection();
             });
             this.socket.on("board:scale", (data : any) => {
                 board.scale(data.ids, data.dx, data.dy);
-                toolbox.select.clearSelection();
+                (toolbox.getTool("select") as SelectTool).clearSelection();
             });
             this.socket.on("board:remove", (data : any) => {
                 board.remove(data);
