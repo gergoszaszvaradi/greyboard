@@ -267,7 +267,7 @@ export class SelectTool extends Tool {
         
         if(this.selection.length == 0) return;
 
-        if(app.keyboard.isAnyPressed()){
+        if(app.keyboard.arePressed([37, 38, 39, 40])){
             if(this.movingWithKeyboard == false) {
                 this.moveStart = new Util.Point(this.bb.x, this.bb.y);
                 this.movingWithKeyboard = true;
@@ -642,6 +642,11 @@ export class TextTool extends Tool{
             if(keyCode == 27)
                 this.endEditing();
         });
+
+        // this.textarea.on("mousedown", (e) => {
+        //     if(e.button == 1)
+        //         this.endEditing();
+        // });
     }
 
     endEditing(){

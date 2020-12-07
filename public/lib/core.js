@@ -24,6 +24,13 @@ export class Keyboard {
     isPressed(key) {
         return this.keys.get(key) == true;
     }
+    arePressed(keys) {
+        for (let v of keys) {
+            if (this.keys.get(v) == true)
+                return true;
+        }
+        return false;
+    }
     isAnyPressed() {
         for (let v of this.keys) {
             if (v[1] == true)

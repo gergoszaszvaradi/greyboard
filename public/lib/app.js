@@ -84,8 +84,10 @@ app.ui.onaction.add((action, e) => {
                 app.ui.setToolbarButtonIcon("visibility", "mdi-lock");
             break;
         case "clear":
-            board.items = {};
-            socket.send("board:clear", null);
+            if (confirm("Are you sure you want to clear the board?")) {
+                board.items = {};
+                socket.send("board:clear", null);
+            }
             break;
         case "undo":
             ActionStack.undo();

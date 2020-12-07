@@ -30,6 +30,14 @@ export class Keyboard {
         return this.keys.get(key) == true;
     }
 
+    public arePressed(keys : number[]) : boolean {
+        for(let v of keys){
+            if(this.keys.get(v) == true)
+                return true;
+        }
+        return false;
+    }
+
     public isAnyPressed() : boolean {
         for(let v of this.keys){
             if(v[1] == true)
