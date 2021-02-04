@@ -3,6 +3,7 @@ import { viewport, app, socket, toolbox, board } from "./app.js";
 import { ActionStack } from "./action.js";
 import Delegate from "./delegate.js";
 import { SelectTool } from "./tool.js";
+import Viewport from "./viewport.js";
 
 export enum BoardItemType{
     None = 0,
@@ -73,10 +74,20 @@ export class Board {
                 toolbox.selectTool("select");
                 selectTool.clearSelection();
                 let ids = [];
+                let bb = new Util.Rect(Infinity, Infinity, -Infinity, -Infinity);
+                for(let i of items){
+                    if(i.rect.x < bb.x) bb.x = i.rect.x;
+                    if(i.rect.x + i.rect.w > bb.w) bb.w = i.rect.x + i.rect.w;
+                    if(i.rect.y < bb.y) bb.y = i.rect.y;
+                    if(i.rect.y + i.rect.h > bb.h) bb.h = i.rect.y + i.rect.h;
+                }
+                bb.w = (bb.w - bb.x) / 2;
+                bb.h = (bb.h - bb.y) / 2;
+                let screenMiddle = viewport.screenToViewport(app.width / 2, app.height / 2);
                 for(let i of items){
                     i.id = Util.generateID();
-                    i.rect.x += 30;
-                    i.rect.y += 30;
+                    i.rect.x += screenMiddle.x - (bb.x + bb.w);
+                    i.rect.y += screenMiddle.y - (bb.y + bb.h);
                     ids.push(i.id);
                 }
                 navigator.clipboard.writeText(JSON.stringify(items));
