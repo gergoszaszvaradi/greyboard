@@ -20,7 +20,7 @@
         "@types/socket.io-client": "^1.4.33",
         "ejs": "^3.1.3",
         "express": "^4.17.1",
-        "express-fileupload": "^1.1.7-alpha.3",
+        "express-fileupload": "^1.1.10",
         "node-fetch": "^2.6.0",
         "socket.io": "^2.3.0",
         "typescript": "^3.9.2"
