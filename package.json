@@ -22,7 +22,7 @@
         "express": "^4.17.1",
         "express-fileupload": "^1.1.7-alpha.3",
         "node-fetch": "^2.6.0",
-        "socket.io": "^2.3.0",
+        "socket.io": "^2.4.0",
         "typescript": "^3.9.2"
     },
     "devDependencies": {
