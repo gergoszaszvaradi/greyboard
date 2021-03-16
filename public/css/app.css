@@ -205,6 +205,16 @@ body{
     margin: 5px 5px;
 }
 
+.windows {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: all;
+    background-color: rgba(0, 0, 0, 0.2);
+}
 
 .window {
     position: fixed;
@@ -212,11 +222,53 @@ body{
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-    border-radius: 3px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
     z-index: 1;
     pointer-events: all;
-    padding: 20px 10px;
+    padding: 20px;
+    width: 50vw;
+}
+
+.window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.window-close-button {
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    font-size: 24px;
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.window-close-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.window .button {
+    border: 0;
+    outline: 0;
+    background-color: #686868;
+    padding: 5px 20px;
+    border-radius: 3px;
+    color: white;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+.window .button.primary {
+    background-color: #fc8210;
+}
+.window .button:hover {
+    background-color: #505050;
+}
+.window .button.primary:hover {
+    background-color: #d86d09;
 }
 
 #editor{
@@ -317,4 +369,44 @@ body{
     /* margin-top: -0.15em; */
     font-family: Arial;
     line-height: 1em;
+}
+
+.export-preview {
+    margin-bottom: 20px;
+}
+
+.export-preview-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.export-padding-input {
+    display: flex;
+    padding: 10px;
+    width: 50px;
+    align-items: center;
+}
+.export-padding-input input {
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    text-align: right;
+    width: 25px;
+    -moz-appearance: textfield;
+    font-size: 1rem;
+}
+.export-padding-input input::-webkit-outer-spin-button,
+.export-padding-input input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.export-padding-input span {
+    opacity: 0.5;
+    width: 25px;
+    padding-left: 3px;
+}
+
+.export-preview img {
+    max-width: 40vw;
+    max-height: 30vh;
 }

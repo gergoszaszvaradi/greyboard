@@ -86,8 +86,11 @@ app.ui.onaction.add((action : string, e : Element) => {
             window.open(`/b/${socket.bid}/save`);
             break;
         case "export":
-            Exporter.exportAsPNG();
+            app.ui.showExportWindow();
             break;
+        case "export-png":
+            Exporter.exportAsPNG();
+            app.ui.hideWindows();
         case "visibility":
             socket.send("board:visibility", !board.public);
             board.public = !board.public;

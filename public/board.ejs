@@ -88,6 +88,38 @@
                         <button class="toolbar-button" data-action="zoomout"><i class="mdi mdi-minus"></i></button>
                     </div>
                 </div>
+                <div class="windows">
+                    <div id="export-window" class="window">
+                        <div class="window-header">
+                            <h1>Export</h1>
+                            <button class="window-close-button" data-action="close-export-window"><i class="mdi mdi-close"></i></button>
+                        </div>
+                        <div class="window-content">
+                            <div class="export-preview">
+                                <div class="export-preview-row">
+                                    <div class="export-padding-input">
+                                        <input id="export-padding-top" type="number" value="50"><span>px</span>
+                                    </div>
+                                </div>
+                                <div class="export-preview-row">
+                                    <div class="export-padding-input">
+                                        <input id="export-padding-left" type="number" value="50"><span>px</span>
+                                    </div>
+                                    <img src="" alt="" id="export-image">
+                                    <div class="export-padding-input">
+                                        <input id="export-padding-right" type="number" value="50"><span>px</span>
+                                    </div>
+                                </div>
+                                <div class="export-preview-row">
+                                    <div class="export-padding-input">
+                                        <input id="export-padding-bottom" type="number" value="50"><span>px</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button data-action="export-png" class="button primary">Export PNG</button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="overlays">
                 <div class="start-hint">

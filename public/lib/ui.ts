@@ -1,6 +1,8 @@
 import Delegate from "./delegate.js";
 import { app, toolbox, socket, board } from "./app.js";
 import { IClient } from "./socket.js";
+import Exporter from "./exporter.js";
+import * as Util from "./util.js"
 
 export class UI {
     onaction : Delegate = new Delegate();
@@ -39,6 +41,22 @@ export class UI {
                 $("#board-static-name").show();
                 $("#board-name").hide();
                 socket.send("board:name", board.name);
+            });
+
+            $(".window-close-button").on("click", () => {
+                this.hideWindows();
+            });
+
+
+            $("input[id^=\"export-padding\"]").on("change", () => {
+                let padding = new Util.Rect(
+                    parseInt($("#export-padding-left").val() as string),
+                    parseInt($("#export-padding-top").val() as string),
+                    parseInt($("#export-padding-right").val() as string),
+                    parseInt($("#export-padding-bottom").val() as string)
+                );
+                let data = Exporter.getPreviewImageData(padding, 1);
+                $(".export-preview img").attr("src", data);
             });
         });
     }
@@ -88,5 +106,26 @@ export class UI {
             $(".start-hint").fadeOut();
             this.hintRemoved = true;
         }
+    }
+
+    hideWindows() {
+        $(".windows").fadeOut("fast");
+    }
+    showWindow(id : string) {
+        $(".window").hide();
+        $("#" + id).show();
+        $(".windows").fadeIn("fast");
+    }
+
+    showExportWindow() {
+        let padding = new Util.Rect(
+            parseInt($("#export-padding-top").val() as string),
+            parseInt($("#export-padding-right").val() as string),
+            parseInt($("#export-padding-bottom").val() as string),
+            parseInt($("#export-padding-left").val() as string)
+        );
+        let data = Exporter.getPreviewImageData(padding, 1);
+        $(".export-preview img").attr("src", data);
+        this.showWindow("export-window");
     }
 }
