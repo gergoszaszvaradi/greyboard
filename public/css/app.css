@@ -147,6 +147,7 @@ body{
     height: 20px;
     margin: 10px 5px;
     background-color: rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
 }
 .toolbar.vertical .toolbar-separator{
     width: 20px;
@@ -409,4 +410,61 @@ body{
 .export-preview img {
     max-width: 40vw;
     max-height: 30vh;
+}
+
+@media only screen and (max-width: 720px) {
+    .toolbar {
+        border-radius: 0;
+    }
+    .spacer {
+        width: 0;
+        height: 0;
+    }
+    .toolbar.vertical > .toolbar-button:first-child {
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+    }
+    .toolbar-textfield span {
+        white-space: nowrap;
+        display: inline-block;
+        max-width: calc(100vw - 270px);
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+    .ui .section-top {
+        top: 0px;
+        left: 0px;
+        right: 0;
+        flex-direction: column;
+    }
+
+    .ui .section-left {
+        top: unset;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    }
+    .section-left .toolbar {
+        flex-direction: row;
+        align-items: center;
+    }
+    .toolbar.vertical .toolbar-separator {
+        width: 1px;
+        height: 20px;
+        margin: 10px 5px;
+    }
+
+    .toolbar-popup-content{
+        position: fixed;
+        top: unset;
+        left: 0;
+        right: 0;
+        bottom: 40px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        border-left: 0;
+    }
+    .toolbar-group {
+        justify-content: center;
+    }
 }
