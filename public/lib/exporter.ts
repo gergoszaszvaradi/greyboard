@@ -20,7 +20,7 @@ export default class Exporter {
             this.offScreenCanvas = new Graphics(eCanvas);
         }
         let bb = board.getBoundingBox();
-        this.offScreenCanvas.resize(bb.w + padding.x + padding.w, bb.h + padding.y + padding.h);
+        this.offScreenCanvas.resize((bb.w + padding.x + padding.w) * scale, (bb.h + padding.y + padding.h) * scale);
         this.offScreenCanvas.clear("#222222");
         this.offScreenCanvas.setView(new Util.Point(-bb.x + padding.x, -bb.y + padding.y), scale);
         app.graphics = this.offScreenCanvas;

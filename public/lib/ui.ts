@@ -48,14 +48,14 @@ export class UI {
             });
 
 
-            $("input[id^=\"export-padding\"]").on("change", () => {
+            $("input[id^=\"export-\"]").on("change", () => {
                 let padding = new Util.Rect(
                     parseInt($("#export-padding-left").val() as string),
                     parseInt($("#export-padding-top").val() as string),
                     parseInt($("#export-padding-right").val() as string),
                     parseInt($("#export-padding-bottom").val() as string)
                 );
-                let data = Exporter.getPreviewImageData(padding, 1);
+                let data = Exporter.getPreviewImageData(padding, parseInt($("#export-setting-scale").val() as string));
                 $(".export-preview img").attr("src", data);
             });
         });
@@ -124,7 +124,7 @@ export class UI {
             parseInt($("#export-padding-bottom").val() as string),
             parseInt($("#export-padding-left").val() as string)
         );
-        let data = Exporter.getPreviewImageData(padding, 1);
+        let data = Exporter.getPreviewImageData(padding, parseInt($("#export-setting-scale").val() as string));
         $(".export-preview img").attr("src", data);
         this.showWindow("export-window");
     }

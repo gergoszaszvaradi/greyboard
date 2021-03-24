@@ -332,6 +332,22 @@ body{
     border-radius: 100px;
 }
 
+.checkbox input {
+    margin-right: 10px;
+}
+
+.spinbox label {
+    margin-right: 10px;
+}
+.spinbox input {
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 0;
+    border-radius: 3px;
+    width: 50px;
+    outline: 0;
+}
+
 
 .overlays {
     pointer-events: none;
@@ -373,10 +389,6 @@ body{
     line-height: 1em;
 }
 
-.export-preview {
-    margin-bottom: 20px;
-}
-
 .export-preview-row {
     display: flex;
     justify-content: center;
@@ -411,6 +423,10 @@ body{
 .export-preview img {
     max-width: 40vw;
     max-height: 30vh;
+}
+
+.export-settings {
+    margin-bottom: 10px;
 }
 
 @media only screen and (max-width: 720px) {
@@ -467,5 +483,9 @@ body{
     }
     .toolbar-group {
         justify-content: center;
+    }
+
+    .window {
+        width: 80vw;
     }
 }
