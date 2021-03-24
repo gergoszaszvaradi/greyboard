@@ -108,9 +108,6 @@ export class SelectTool extends Tool {
         if(Util.isPointInRect(mp.x, mp.y, this.bb.x+this.bb.w-5 / viewport.scale, this.bb.y+this.bb.h-5 / viewport.scale, 10 / viewport.scale, 10 / viewport.scale)){
             this.mode = SelectToolMode.Scale;
             this.scaleAspect = new Util.Point(this.bb.w, this.bb.h);
-            // if(app.keyboard.shift){
-            //     // this.scaleAspect = this.bb.w / this.bb.h;
-            // }
             app.setCursor("nwse-resize");
         }else if(Util.isPointInRect(mp.x, mp.y, this.bb.x, this.bb.y, this.bb.w, this.bb.h)){
             this.mode = SelectToolMode.Move;
@@ -738,11 +735,14 @@ export class TextTool extends Tool{
                 this.textarea.val(this.currentText.text).css({
                     left: ip.x + "px",
                     top: ip.y + "px",
+                    width: (app.width - ip.x) + "px",
+                    height: (app.height - ip.y) + "px",
                     fontSize: lineHeight * viewport.scale,
                     color: this.currentText.color
                 }).show().select();
 
                 this.currentText.visible = false;
+                (toolbox.getTool("select") as SelectTool).clearSelection();
             }
         });
 
@@ -750,6 +750,8 @@ export class TextTool extends Tool{
             this.textarea.val("").css({
                 left: app.pointer.x + "px",
                 top: app.pointer.y + "px",
+                width: (app.width - app.pointer.x) + "px",
+                height: (app.height - app.pointer.y) + "px",
                 fontSize: 20 * viewport.scale,
                 color: toolbox.color
             }).show().select();
@@ -757,6 +759,7 @@ export class TextTool extends Tool{
     }
 
     onDraw(){
+        if(this.editing) return;
         let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         board.each((item) => {
             app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
