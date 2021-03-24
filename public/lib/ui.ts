@@ -20,7 +20,7 @@ export class UI {
                 }
             });
 
-            $(document).on("mousedown wheel", () => this.removeStartingHint());
+            $(document).on("mousedown wheel touchstart", () => this.removeStartingHint());
             $("input").on("focus", () => this.inputFocused = true);
             $("textarea").on("focus", () => this.inputFocused = true);
             $("input").on("blur", e => this.inputFocused = false);

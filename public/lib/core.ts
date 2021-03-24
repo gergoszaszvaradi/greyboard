@@ -1,6 +1,7 @@
 import Delegate from "./delegate.js"
 import Graphics from "./graphics.js";
 import { UI } from "./ui.js";
+import * as Util from "./util.js"
 
 export class Mouse {
     x : number = 0;
@@ -11,6 +12,31 @@ export class Mouse {
     dy : number = 0;
     button : number = -1;
     pressed : boolean = false;
+}
+
+export class TouchPosition {
+    x : number = 0;
+    y : number = 0;
+    px : number = 0;
+    py : number = 0;
+    constructor(x : number, y : number) {
+        this.x = x;
+        this.y = y;
+        this.px = x;
+        this.py = y;
+    }
+}
+export class Pointer {
+    x : number = 0;
+    y : number = 0;
+    px : number = 0;
+    py : number = 0;
+    cx : number = 0;
+    cy : number = 0;
+    button : number = -1;
+    pressed : boolean = false;
+    isTouch : boolean = false;
+    touches : Array<TouchPosition> = [];
 }
 
 export class Keyboard {
@@ -60,14 +86,15 @@ export class Application {
 
     width: number = 0;
     height: number = 0;
-    mouse = new Mouse();
+    pointer = new Pointer();
     keyboard = new Keyboard();
     shortcuts : Array<Shortcut> = [];
 
     onresize = new Delegate();
-    onmousedown = new Delegate();
-    onmousemove = new Delegate();
-    onmouseup = new Delegate();
+    onpointerdown = new Delegate();
+    onpointermove = new Delegate();
+    onpointerup = new Delegate();
+    onpointerpinch = new Delegate();
     onmousewheel = new Delegate();
     onkeydown = new Delegate();
     onkeyup = new Delegate();
@@ -120,25 +147,62 @@ export class Application {
             this.onfocuschanged.invoke(false);
         });
 
-        this.graphics.canvas.addEventListener("mousedown", (e) => {
-            this.mouse.dx = e.clientX;
-            this.mouse.dy = e.clientY;
-            this.mouse.button = e.button;
-            this.mouse.pressed = true;
-            this.onmousedown.invoke(e.button, e.clientX, e.clientY);
-        });
-        this.graphics.canvas.addEventListener("mousemove", (e) => {
-            this.mouse.px = this.mouse.x;
-            this.mouse.py = this.mouse.y;
-            this.mouse.x = e.clientX;
-            this.mouse.y = e.clientY;
-            this.onmousemove.invoke(e.clientX, e.clientY);
-        });
-        this.graphics.canvas.addEventListener("mouseup", (e) => {
-            this.mouse.pressed = false;
-            this.mouse.button = -1;
-            this.onmouseup.invoke(e.clientX, e.clientY);
-        });
+        const onPointerDown = (x : number, y : number, button : number, touches : TouchList | Touch[]) => {
+            this.pointer.px = this.pointer.x = x;
+            this.pointer.py = this.pointer.y = y;
+            this.pointer.button = button;
+            this.pointer.pressed = true;
+            this.pointer.isTouch = touches.length > 0;
+            for(let t of touches){
+                this.pointer.touches.push(new TouchPosition(t.clientX, t.clientY));
+            }
+            this.onpointerdown.invoke(button, x, y);
+        }
+        this.graphics.canvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY, e.button, []));
+        this.graphics.canvas.addEventListener("touchstart", (e) => onPointerDown(e.touches[0].clientX, e.touches[0].clientY, 0, e.touches));
+
+        const onPointerMove = (x : number, y : number, touches : TouchList | Touch[]) => {
+            this.pointer.px = this.pointer.x;
+            this.pointer.py = this.pointer.y;
+            this.pointer.x = this.pointer.cx = x;
+            this.pointer.y = this.pointer.cy = y;
+            if(this.pointer.touches.length == 0)
+                for(let t of touches)
+                    this.pointer.touches.push(new TouchPosition(t.clientX, t.clientY));
+
+            for(let i = 0; i < touches.length; i++){
+                this.pointer.touches[i].px = this.pointer.touches[i].x;
+                this.pointer.touches[i].py = this.pointer.touches[i].y;
+                this.pointer.touches[i].x = touches[i].clientX;
+                this.pointer.touches[i].y = touches[i].clientY;
+            }
+            if(touches.length > 1) {
+                this.pointer.button = 1;
+
+                let d = Util.dist(this.pointer.touches[0].x, this.pointer.touches[0].y, this.pointer.touches[1].x, this.pointer.touches[1].y);
+                let pd = Util.dist(this.pointer.touches[0].px, this.pointer.touches[0].py, this.pointer.touches[1].px, this.pointer.touches[1].py);
+                this.pointer.cx = (this.pointer.touches[0].x + this.pointer.touches[1].x) / 2;
+                this.pointer.cy = (this.pointer.touches[0].y + this.pointer.touches[1].y) / 2;
+                if(d != 0 && pd != 0 && d != pd)
+                    this.onpointerpinch.invoke(d / pd);
+            }
+            this.onpointermove.invoke(x, y);
+        };
+        this.graphics.canvas.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY, []));
+        this.graphics.canvas.addEventListener("touchmove", (e) => onPointerMove(e.touches[0].clientX, e.touches[0].clientY, e.touches));
+
+        const onPointerUp = (x : number, y : number, touches : TouchList | Touch[]) => {
+            this.pointer.pressed = false;
+            this.pointer.button = -1;
+            this.pointer.touches = [];
+            // for(let t of touches){
+            //     this.pointer.touches.push(new TouchPosition(t.clientX, t.clientY));
+            // }
+            this.onpointerup.invoke(x, y);
+        }
+        this.graphics.canvas.addEventListener("mouseup", (e) => onPointerUp(e.clientX, e.clientY, []));
+        this.graphics.canvas.addEventListener("touchend", (e) => onPointerUp(this.pointer.x, this.pointer.y, e.touches));
+
         this.graphics.canvas.addEventListener("wheel", (e) => {
             this.onmousewheel.invoke(e.deltaX, e.deltaY);
         });

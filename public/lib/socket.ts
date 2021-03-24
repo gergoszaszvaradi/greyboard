@@ -57,7 +57,7 @@ export class Socket {
         this.socket.on("connect", () => {
             this.cid = this.socket.id;
 
-            let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+            let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
             this.send("connected", {
                 cid: this.cid,
                 bid: bid,
@@ -66,7 +66,7 @@ export class Socket {
                 name: window.localStorage.getItem("gb_name") || null,
                 focused: true
             });
-            this.clientCoords[this.cid] = new ClientCoord(app.mouse.x, app.mouse.y);
+            this.clientCoords[this.cid] = new ClientCoord(app.pointer.x, app.pointer.y);
             
             this.socket.on("room:state", (data : any) => {
                 this.clients = data.clients;
@@ -148,7 +148,7 @@ export class Socket {
     }
 
     update(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         this.send("client:update", {
             cid: this.cid,
             bid: this.bid,

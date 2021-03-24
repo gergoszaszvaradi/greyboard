@@ -16,26 +16,35 @@ let bid = window.location.pathname.substr(window.location.pathname.length-16, 16
 export let socket = new Socket(bid);
 
 
-app.onmousedown.add(() => {
-    if(app.mouse.button == 0)
-        toolbox.selected.onClickDown();
-});
-
-app.onmousemove.add(() => {
-    if(app.mouse.pressed){
-        if(app.mouse.button == 0)
-            toolbox.selected.onClickMove();
-        else if(app.mouse.button == 1)
-            viewport.pan(app.mouse.x - app.mouse.px, app.mouse.y - app.mouse.py);
+app.onpointerdown.add(() => {
+    if(app.pointer.button == 0){
+        if (toolbox.selected.isUsing)
+            toolbox.selected.onClickCanceled();
+        else
+            toolbox.selected.onClickDown();
     }
 });
 
-app.onmouseup.add(() => {
-    toolbox.selected.onClickUp();
+app.onpointermove.add(() => {
+    if(app.pointer.pressed){
+        if(app.pointer.button == 0)
+            toolbox.selected.onClickMove();
+        else if(app.pointer.button == 1)
+            viewport.pan(app.pointer.x - app.pointer.px, app.pointer.y - app.pointer.py);
+    }
+});
+
+app.onpointerpinch.add((d) => {
+    viewport.multiplyZoom(app.pointer.cx, app.pointer.cy, d);
+});
+
+app.onpointerup.add(() => {
+    if(toolbox.selected.isUsing)
+        toolbox.selected.onClickUp();
 });
 
 app.onmousewheel.add((dx : number, dy : number) => {
-    viewport.zoom(app.mouse.x, app.mouse.y, dy * 0.03);
+    viewport.zoom(app.pointer.cx, app.pointer.cy, dy * 0.03);
 });
 app.onfocuschanged.add((state : boolean) => {
     socket.send("client:afk", !state);

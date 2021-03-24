@@ -52,6 +52,7 @@ export class Toolbox {
 
 export class Tool {
     name : string = "";
+    isUsing : boolean = false;
 
     constructor(name : string){
         this.name = name;
@@ -60,9 +61,16 @@ export class Tool {
     onSelected(){};
     onDeSelected(){};
 
-    onClickDown(){};
+    onClickDown(){
+        this.isUsing = true;
+    }
     onClickMove(){};
-    onClickUp(){};
+    onClickUp(){
+        this.isUsing = false;
+    }
+    onClickCanceled(){
+        this.isUsing = false;
+    }
 
     onFrameUpdate(){};
     onDraw(){};
@@ -95,7 +103,8 @@ export class SelectTool extends Tool {
     }
 
     onClickDown(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        super.onClickDown();
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(Util.isPointInRect(mp.x, mp.y, this.bb.x+this.bb.w-5 / viewport.scale, this.bb.y+this.bb.h-5 / viewport.scale, 10 / viewport.scale, 10 / viewport.scale)){
             this.mode = SelectToolMode.Scale;
             this.scaleAspect = new Util.Point(this.bb.w, this.bb.h);
@@ -117,7 +126,7 @@ export class SelectTool extends Tool {
 
     onClickMove(){
         this.wasDragged = true;
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(this.mode == SelectToolMode.Select){
             if(mp.x > this.rect.ox){
                 this.rect.x = this.rect.ox;
@@ -142,12 +151,12 @@ export class SelectTool extends Tool {
                 }
             });
         }else if(this.mode == SelectToolMode.Move){
-            let mpp = viewport.screenToViewport(app.mouse.px, app.mouse.py);
+            let mpp = viewport.screenToViewport(app.pointer.px, app.pointer.py);
             let dx = mpp.x - mp.x;
             let dy = mpp.y - mp.y;
             this.moveSelection(dx, dy);
         }else if(this.mode == SelectToolMode.Scale){
-            let mpp = viewport.screenToViewport(app.mouse.px, app.mouse.py);
+            let mpp = viewport.screenToViewport(app.pointer.px, app.pointer.py);
             let dx = mpp.x - mp.x;
             let dy = mpp.y - mp.y;
             this.scaleSelection(dx, dy);
@@ -155,9 +164,10 @@ export class SelectTool extends Tool {
     }
 
     onClickUp(){
+        super.onClickUp();
         app.setCursor("default");
         if(this.wasDragged == false){
-            let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+            let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
             board.each((item) => {
                 if(!viewport.isRectInView(item.rect)) return;
                 if(Util.isPointInRect(mp.x, mp.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
@@ -287,7 +297,7 @@ export class SelectTool extends Tool {
             this.moveSpeed = 1;
         }
 
-        if(app.mouse.pressed || this.selection.length > 1){
+        if(app.pointer.pressed || this.selection.length > 1){
             app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
             app.graphics.dash([5, 5]);
             for(let i of this.selection){
@@ -305,7 +315,7 @@ export class SelectTool extends Tool {
         app.graphics.stroke("#00000044", 1);
         app.graphics.ellipse(this.bb.x+this.bb.w, this.bb.y+this.bb.h, 5 / viewport.scale, 5 / viewport.scale);
 
-        if(this.mode == SelectToolMode.Scale && app.mouse.pressed){
+        if(this.mode == SelectToolMode.Scale && app.pointer.pressed){
             app.graphics.font("Arial", 14 / viewport.scale, "left", "top");
             app.graphics.text(this.bb.x+this.bb.w + 10 / viewport.scale, this.bb.y+this.bb.h + 10 / viewport.scale, `${Math.floor(this.bb.w)} × ${Math.floor(this.bb.h)} px`);
         }
@@ -320,14 +330,16 @@ export class PencilTool extends Tool {
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
-        this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
+        super.onClickDown();
+        this.buffer.push(viewport.screenToViewport(app.pointer.x, app.pointer.y));
     }
     onClickMove(){
-        this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
+        this.buffer.push(viewport.screenToViewport(app.pointer.x, app.pointer.y));
     }
     onClickUp(){
+        super.onClickUp();
         if(this.buffer.length == 0) return;
-        this.buffer.push(viewport.screenToViewport(app.mouse.x, app.mouse.y));
+        this.buffer.push(viewport.screenToViewport(app.pointer.x, app.pointer.y));
 
         let path = new BoardPath(socket.cid, this.buffer, toolbox.color, toolbox.weight);
 
@@ -343,6 +355,9 @@ export class PencilTool extends Tool {
             socket.send("board:remove", [data.id]);
         }, path);
 
+        this.buffer = [];
+    }
+    onClickCanceled() {
         this.buffer = [];
     }
 
@@ -362,16 +377,18 @@ export class EraserTool extends Tool {
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
+        super.onClickDown();
         this.trail = [];
     }
     onClickUp(){
+        super.onClickUp();
         this.trail = [];
     }
 
     onFrameUpdate(){
-        if(app.mouse.pressed && app.mouse.button == 0){
+        if(app.pointer.pressed && app.pointer.button == 0){
             if(this.trail.length > 5) this.trail.shift();
-            let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+            let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
             this.trail.push(mp);
 
             board.each((item) => {
@@ -389,7 +406,7 @@ export class EraserTool extends Tool {
                         }, item);
                     }
                 }else{
-                    let mpp = viewport.screenToViewport(app.mouse.px, app.mouse.py);
+                    let mpp = viewport.screenToViewport(app.pointer.px, app.pointer.py);
                     if(item.isInLine(mpp.x, mpp.y, mp.x, mp.y)){
                         ActionStack.add((data) => {
                             board.remove([data.id]);
@@ -422,15 +439,17 @@ export class RectangleTool extends Tool {
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        super.onClickDown();
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         this.start = new Util.Point(mp.x, mp.y);
         this.drawing = true;
     }
 
     onClickUp(){
+        super.onClickUp();
         if(!this.drawing) return;
         
-        let end = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let end = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(end.x < this.start.x){
             let t = this.start.x;
             this.start.x = end.x;
@@ -457,7 +476,7 @@ export class RectangleTool extends Tool {
 
     onDraw(){
         if(!this.drawing) return;
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(this.filled){
             app.graphics.fill(toolbox.color);
             app.graphics.fillRect(this.start.x, this.start.y, mp.x - this.start.x, mp.y - this.start.y);
@@ -485,15 +504,17 @@ export class EllipseTool extends Tool {
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        super.onClickDown();
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         this.start = new Util.Point(mp.x, mp.y);
         this.drawing = true;
     }
 
     onClickUp(){
+        super.onClickUp();
         if(!this.drawing) return;
         
-        let end = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let end = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(end.x < this.start.x){
             let t = this.start.x;
             this.start.x = end.x;
@@ -520,7 +541,7 @@ export class EllipseTool extends Tool {
 
     onDraw(){
         if(!this.drawing) return;
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(this.filled){
             app.graphics.fill(toolbox.color);
             app.graphics.fillEllipse(this.start.x + (mp.x - this.start.x) / 2, this.start.y + (mp.y - this.start.y) / 2, Math.abs((mp.x - this.start.x) / 2), Math.abs((mp.y - this.start.y) / 2));
@@ -547,15 +568,17 @@ export class LineTool extends Tool {
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        super.onClickDown();
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         this.start = new Util.Point(mp.x, mp.y);
         this.drawing = true;
     }
 
     onClickUp(){
+        super.onClickUp();
         if(!this.drawing) return;
         
-        let end = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let end = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         let line = new BoardPath(socket.cid, [this.start, end], toolbox.color, toolbox.weight);
 
         line.calculateRect();
@@ -575,7 +598,7 @@ export class LineTool extends Tool {
 
     onDraw(){
         if(!this.drawing) return;
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
 
         app.graphics.stroke(toolbox.color, toolbox.weight);
         app.graphics.line(this.start.x, this.start.y, mp.x, mp.y);
@@ -590,15 +613,17 @@ export class ArrowTool extends Tool{
     onDeSelected() { this.onClickUp(); }
 
     onClickDown(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        super.onClickDown();
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         this.start = new Util.Point(mp.x, mp.y);
         this.drawing = true;
     }
 
     onClickUp(){
+        super.onClickUp();
         if(!this.drawing) return;
         
-        let end = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let end = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         if(end.x == this.start.x && end.y == this.start.y) return;
 
         let arrow = new BoardArrow(socket.cid, this.start.x, this.start.y, end.x, end.y, toolbox.color, toolbox.weight);
@@ -620,7 +645,7 @@ export class ArrowTool extends Tool{
 
     onDraw(){
         if(!this.drawing) return;
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
 
         app.graphics.stroke(toolbox.color, toolbox.weight);
         app.graphics.line(this.start.x, this.start.y, mp.x, mp.y);
@@ -696,11 +721,12 @@ export class TextTool extends Tool{
     }
 
     onClickUp(){
+        super.onClickUp();
         this.endEditing();
         this.editing = true;
         this.creatingNew = true;
 
-        this.pos = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        this.pos = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         board.each((item) => {
             if(!viewport.isRectInView(item.rect) || item.type != BoardItemType.Text) return;
             if(Util.isPointInRect(this.pos.x, this.pos.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
@@ -722,8 +748,8 @@ export class TextTool extends Tool{
 
         if(this.creatingNew){
             this.textarea.val("").css({
-                left: app.mouse.x + "px",
-                top: app.mouse.y + "px",
+                left: app.pointer.x + "px",
+                top: app.pointer.y + "px",
                 fontSize: 20 * viewport.scale,
                 color: toolbox.color
             }).show().select();
@@ -731,7 +757,7 @@ export class TextTool extends Tool{
     }
 
     onDraw(){
-        let mp = viewport.screenToViewport(app.mouse.x, app.mouse.y);
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
         board.each((item) => {
             app.graphics.stroke("#FFFFFF30", 1 / viewport.scale);
             if(!viewport.isRectInView(item.rect) || item.type != BoardItemType.Text) return;

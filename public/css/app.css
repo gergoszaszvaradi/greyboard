@@ -353,6 +353,7 @@ body{
     flex-direction: column;
     align-items: center;
     font-weight: bold;
+    text-align: center;
 }
 .start-hint i{
     font-size: 70px;
