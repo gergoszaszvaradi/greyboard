@@ -300,7 +300,6 @@ body{
     border: 0;
     background-color: transparent;
 
-    -webkit-appearance: none;
     cursor: ew-resize;
 }
 .range input:focus{
@@ -463,6 +462,7 @@ body{
     .section-left .toolbar {
         flex-direction: row;
         align-items: center;
+        width: 100%;
     }
     .toolbar.vertical .toolbar-separator {
         width: 1px;
