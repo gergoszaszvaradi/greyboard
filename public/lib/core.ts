@@ -147,6 +147,23 @@ export class Application {
             this.onfocuschanged.invoke(false);
         });
 
+        // Prevent scrolling when touching the canvas
+        this.graphics.canvas.addEventListener("touchstart", function (e) {
+            if (e.target == canvas) {
+            e.preventDefault();
+            }
+        }, false);
+        this.graphics.canvas.addEventListener("touchend", function (e) {
+            if (e.target == canvas) {
+            e.preventDefault();
+            }
+        }, false);
+        this.graphics.canvas.addEventListener("touchmove", function (e) {
+            if (e.target == canvas) {
+            e.preventDefault();
+            }
+        }, false);
+
         const onPointerDown = (x : number, y : number, button : number, touches : TouchList | Touch[]) => {
             this.pointer.px = this.pointer.x = x;
             this.pointer.py = this.pointer.y = y;
