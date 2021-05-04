@@ -369,6 +369,7 @@ export class PencilTool extends Tool {
 
 export class EraserTool extends Tool {
     trail : Array<Util.Point> = [];
+    itemsToDelete : Array<BoardItem> = [];
 
     constructor(){ super("Eraser"); }
 
@@ -377,10 +378,22 @@ export class EraserTool extends Tool {
     onClickDown(){
         super.onClickDown();
         this.trail = [];
+        this.itemsToDelete = [];
     }
     onClickUp(){
         super.onClickUp();
         this.trail = [];
+
+        ActionStack.add((data) => {
+            const ids = data.map((i : BoardItem) => i.id);
+            board.remove(ids);
+            socket.send("board:remove", ids);
+        }, (data) => {
+            board.add(data);
+            socket.send("board:add", data);
+        }, this.itemsToDelete);
+
+        this.itemsToDelete = [];
     }
 
     onFrameUpdate(){
@@ -395,24 +408,14 @@ export class EraserTool extends Tool {
                 let bbarea = item.rect.w * item.rect.h;
                 if(bbarea < 10) {
                     if(Util.isPointInRect(mp.x, mp.y, item.rect.x-5, item.rect.y-5, 10, 10)){
-                        ActionStack.add((data) => {
-                            board.remove([data.id]);
-                            socket.send("board:remove", [data.id]);
-                        }, (data) => {
-                            board.add([data]);
-                            socket.send("board:add", [data]);
-                        }, item);
+                        this.itemsToDelete.push(item);
+                        board.remove([item.id]);
                     }
                 }else{
                     let mpp = viewport.screenToViewport(app.pointer.px, app.pointer.py);
                     if(item.isInLine(mpp.x, mpp.y, mp.x, mp.y)){
-                        ActionStack.add((data) => {
-                            board.remove([data.id]);
-                            socket.send("board:remove", [data.id]);
-                        }, (data) => {
-                            board.add([data]);
-                            socket.send("board:add", [data]);
-                        }, item);
+                        this.itemsToDelete.push(item);
+                        board.remove([item.id]);
                     }
                 }
             });
