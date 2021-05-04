@@ -212,16 +212,13 @@ export class Application {
             this.pointer.pressed = false;
             this.pointer.button = -1;
             this.pointer.touches = [];
-            // for(let t of touches){
-            //     this.pointer.touches.push(new TouchPosition(t.clientX, t.clientY));
-            // }
             this.onpointerup.invoke(x, y);
         }
         this.graphics.canvas.addEventListener("mouseup", (e) => onPointerUp(e.clientX, e.clientY, []));
         this.graphics.canvas.addEventListener("touchend", (e) => onPointerUp(this.pointer.x, this.pointer.y, e.touches));
 
         this.graphics.canvas.addEventListener("wheel", (e) => {
-            this.onmousewheel.invoke(e.deltaX, e.deltaY);
+            this.onmousewheel.invoke(Math.sign(e.deltaX) * 5, Math.sign(e.deltaY) * 5);
         });
 
         this.lastUpdateTime = (new Date()).getTime();

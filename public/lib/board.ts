@@ -284,6 +284,16 @@ export class BoardPath extends BoardItem {
                 return true;
             }
         }
+        for(let i = 1; i < this.points.length; i++){
+            if(
+                Util.lineIntersection(rect.x, rect.y, rect.x + rect.w, rect.y, this.points[i].x * this.rect.w + this.rect.x, this.points[i].y * this.rect.h + this.rect.y, this.points[i-1].x * this.rect.w + this.rect.x, this.points[i-1].y * this.rect.h + this.rect.y) ||
+                Util.lineIntersection(rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + rect.h, this.points[i].x * this.rect.w + this.rect.x, this.points[i].y * this.rect.h + this.rect.y, this.points[i-1].x * this.rect.w + this.rect.x, this.points[i-1].y * this.rect.h + this.rect.y) ||
+                Util.lineIntersection(rect.x, rect.y + rect.h, rect.x + rect.w, rect.y + rect.h, this.points[i].x * this.rect.w + this.rect.x, this.points[i].y * this.rect.h + this.rect.y, this.points[i-1].x * this.rect.w + this.rect.x, this.points[i-1].y * this.rect.h + this.rect.y) ||
+                Util.lineIntersection(rect.x, rect.y, rect.x, rect.y + rect.h, this.points[i].x * this.rect.w + this.rect.x, this.points[i].y * this.rect.h + this.rect.y, this.points[i-1].x * this.rect.w + this.rect.x, this.points[i-1].y * this.rect.h + this.rect.y)
+            ){
+                return true;
+            }
+        }
         return false;
     }
     isInLine(x1 : number, y1 : number, x2 : number, y2 : number){
