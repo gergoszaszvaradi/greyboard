@@ -191,6 +191,13 @@ export class GreyBoard {
                     socket.broadcast.to(bid).emit("board:remove", data.data);
                 }
             });
+            socket.on("board:lock", (data) => {
+                let board = this.loadedBoards[bid];
+                if(board){
+                    board.items[data.data.id].locked = data.data.state;
+                    socket.broadcast.to(bid).emit("board:lock", data.data);
+                }
+            });
             socket.on("board:clear", (data) => {
                 let board = this.loadedBoards[bid];
                 if(board){

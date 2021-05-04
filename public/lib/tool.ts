@@ -20,7 +20,8 @@ export class Toolbox {
             new FillEllipseTool(),
             new LineTool(),
             new ArrowTool(),
-            new TextTool()
+            new TextTool(),
+            new LockTool()
         ];
         this.selected = this.tools[0] as Tool;
     }
@@ -142,7 +143,7 @@ export class SelectTool extends Tool {
 
             this.clearSelection();
             board.each((item) => {
-                if(!viewport.isRectInView(item.rect)) return;
+                if(item.locked || !viewport.isRectInView(item.rect)) return;
                 if(item.isInRect(this.rect)){
                     this.selection.push(item.id);
                 }
@@ -166,7 +167,7 @@ export class SelectTool extends Tool {
         if(this.wasDragged == false){
             let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
             board.each((item) => {
-                if(!viewport.isRectInView(item.rect)) return;
+                if(item.locked || !viewport.isRectInView(item.rect)) return;
                 if(Util.isPointInRect(mp.x, mp.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
                     this.selection = [item.id];
                     return;
@@ -389,7 +390,7 @@ export class EraserTool extends Tool {
             this.trail.push(mp);
 
             board.each((item) => {
-                if(!viewport.isRectInView(item.rect)) return;
+                if(item.locked || !viewport.isRectInView(item.rect)) return;
 
                 let bbarea = item.rect.w * item.rect.h;
                 if(bbarea < 10) {
@@ -767,6 +768,44 @@ export class TextTool extends Tool{
             if(Util.isPointInRect(mp.x, mp.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
                 app.graphics.rect(item.rect.x, item.rect.y, item.rect.w, item.rect.h);
             }
+        });
+    }
+}
+
+export class LockTool extends Tool{
+    constructor() { super("Lock"); }
+
+    onClickUp(){
+        super.onClickUp();
+        
+        let mp = viewport.screenToViewport(app.pointer.x, app.pointer.y);
+        let clickedItem : BoardItem | null = null;
+
+        board.each((item) => {
+            if(!viewport.isRectInView(item.rect)) return;
+            if(Util.isPointInRect(mp.x, mp.y, item.rect.x, item.rect.y, item.rect.w, item.rect.h)){
+                clickedItem = item;
+                return;
+            }
+        });
+
+        if(clickedItem) {
+            ActionStack.add((data) => {
+                data.locked = !data.locked;
+                socket.send("board:lock", { id: data.id, state: data.locked });
+            }, (data) => {
+                data.locked = !data.locked;
+                socket.send("board:lock", { id: data.id, state: data.locked });
+            }, clickedItem);
+        }
+    }
+
+    onDraw(){
+        app.graphics.stroke("#e02f1b", 2 / viewport.scale);
+        board.each((item) => {
+            if(!item.locked || !viewport.isRectInView(item.rect)) return;
+            
+            app.graphics.rect(item.rect.x, item.rect.y, item.rect.w, item.rect.h);
         });
     }
 }

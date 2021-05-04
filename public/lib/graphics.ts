@@ -75,6 +75,10 @@ export default class Graphics {
         this.ctx.closePath();
     }
 
+    // fillRoundedRect(x : number, y : number, w : number, h : number, c1 : number, c2 : number = c1, c3 : number = c1, c4 : number = c1) {
+    //     this.ctx.fillRect()
+    // }
+
     curve(points : Array<Util.Point>){
         if(points == null || points.length == 0) return;
 

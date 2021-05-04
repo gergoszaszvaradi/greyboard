@@ -128,6 +128,9 @@ export class Socket {
             this.socket.on("board:remove", (data : any) => {
                 board.remove(data);
             });
+            this.socket.on("board:lock", (data : any) => {
+                board.items[data.id].locked = data.state;
+            });
             this.socket.on("board:clear", (data : any) => {
                 board.clear();
             });

@@ -206,6 +206,7 @@ export class BoardItem {
     cid : string;
     rect : Util.Rect;
     type : BoardItemType;
+    locked : boolean = false;
 
     constructor(cid : string, x : number = 0, y : number = 0, w : number = 0, h : number = 0) {
         this.cid = cid;
